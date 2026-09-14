@@ -2,13 +2,13 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { KeyRound, Loader2, RefreshCw, UserPlus, X } from "lucide-react";
+import { Info, KeyRound, Loader2, RefreshCw, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { TenantRole } from "@/lib/auth/roles";
-import type { PlatformState } from "../actions";
+import { checkMemberEmail, type PlatformState } from "../actions";
 
 const ROLE_LABELS: Record<TenantRole, string> = {
   OWNER: "Propietario",
@@ -45,6 +45,9 @@ export function CreateMemberDialog({
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [password, setPassword] = useState("");
+  // null = aún no se sabe (email vacío o sin comprobar).
+  const [hasAccount, setHasAccount] = useState<boolean | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
   const [state, formAction, isPending] = useActionState<PlatformState, FormData>(
     action,
     {},
@@ -66,6 +69,21 @@ export function CreateMemberDialog({
       document.body.style.overflow = "";
     };
   }, [open, isPending]);
+
+  async function handleEmailBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const email = e.target.value.trim();
+    if (!email || !e.target.validity.valid) {
+      setHasAccount(null);
+      return;
+    }
+    setIsChecking(true);
+    try {
+      const { exists } = await checkMemberEmail(email);
+      setHasAccount(exists);
+    } finally {
+      setIsChecking(false);
+    }
+  }
 
   const trigger = (
     <Button type="button" size="sm" onClick={() => setOpen(true)}>
@@ -132,8 +150,26 @@ export function CreateMemberDialog({
                   required
                   autoFocus
                   placeholder="persona@empresa.com"
+                  onBlur={handleEmailBlur}
+                  onChange={() => setHasAccount(null)}
                 />
+                {isChecking && (
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Loader2 className="size-3 animate-spin" />
+                    Comprobando si ya tiene cuenta…
+                  </p>
+                )}
               </div>
+
+              {hasAccount && (
+                <div className="flex gap-2 rounded-[var(--radius)] border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-700 dark:text-amber-400">
+                  <Info className="mt-0.5 size-3.5 shrink-0" />
+                  <p>
+                    Este email ya tiene cuenta. Se añadirá al espacio con su contraseña
+                    actual; no se le puede fijar una nueva desde aquí.
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <Label htmlFor="member-name">Nombre (opcional)</Label>
@@ -145,7 +181,7 @@ export function CreateMemberDialog({
                 />
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" hidden={hasAccount === true}>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="member-password">Contraseña</Label>
                   <button
@@ -160,7 +196,8 @@ export function CreateMemberDialog({
                 <PasswordInput
                   id="member-password"
                   name="password"
-                  required
+                  required={hasAccount !== true}
+                  disabled={hasAccount === true}
                   minLength={8}
                   autoComplete="new-password"
                   value={password}
@@ -185,7 +222,7 @@ export function CreateMemberDialog({
                 </select>
               </div>
 
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground" hidden={hasAccount === true}>
                 Entrega la contraseña por un canal seguro y pídele que la cambie en
                 Configuración → Perfil al primer acceso.
               </p>
@@ -210,7 +247,7 @@ export function CreateMemberDialog({
                   ) : (
                     <UserPlus className="size-4" />
                   )}
-                  Crear y añadir
+                  {hasAccount ? "Añadir al espacio" : "Crear y añadir"}
                 </Button>
               </div>
             </form>

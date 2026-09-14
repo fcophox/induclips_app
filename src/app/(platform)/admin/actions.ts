@@ -323,9 +323,30 @@ export async function setMemberSuspended(
 const CreateMemberInput = z.object({
   email: z.string().trim().toLowerCase().email("Email no válido"),
   fullName: z.string().trim().max(80).optional().or(z.literal("")),
-  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  // Opcional aquí: si la cuenta ya existe no se usa. Se exige más abajo,
+  // sólo cuando de verdad hay que crearla.
+  password: z.string(),
   role: z.enum(MEMBER_ROLES),
 });
+
+/**
+ * ¿Ese email ya tiene cuenta? El diálogo lo pregunta antes de enviar para
+ * no pedir una contraseña que luego se ignoraría en silencio.
+ */
+export async function checkMemberEmail(rawEmail: string): Promise<{ exists: boolean }> {
+  await requireSuperadmin();
+
+  const email = z.string().trim().toLowerCase().email().safeParse(rawEmail);
+  if (!email.success) return { exists: false };
+
+  const { data } = await createServiceClient()
+    .from("users_profiles")
+    .select("id")
+    .eq("email", email.data)
+    .maybeSingle();
+
+  return { exists: Boolean(data) };
+}
 
 /**
  * Alta directa de un colaborador desde el panel de plataforma.
@@ -351,7 +372,7 @@ export async function createMemberAccount(
   const parsed = CreateMemberInput.safeParse({
     email: formData.get("email"),
     fullName: formData.get("fullName") ?? "",
-    password: formData.get("password"),
+    password: formData.get("password") ?? "",
     role: formData.get("role"),
   });
 
@@ -401,6 +422,9 @@ export async function createMemberAccount(
   const reused = Boolean(userId);
 
   if (!userId) {
+    if (password.length < 8) {
+      return { error: "La contraseña debe tener al menos 8 caracteres" };
+    }
     const { data, error } = await admin.auth.admin.createUser({
       email,
       password,

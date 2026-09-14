@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { APP_NAME, APP_QUOTE } from "@/lib/app-config";
 import { Quote, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -76,9 +76,9 @@ export default async function RecoverPage({
                 </p>
               )}
 
-              <Button type="submit" className="w-full h-10 mt-2">
+              <SubmitButton pendingLabel="Enviando…" className="w-full h-10 mt-2">
                 Enviar enlace
-              </Button>
+              </SubmitButton>
             </form>
           )}
         </div>

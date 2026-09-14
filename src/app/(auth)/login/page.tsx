@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { resolveLandingPath } from "@/lib/auth/landing";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ACCOUNT_PROVISIONING_NOTE, APP_NAME, APP_QUOTE } from "@/lib/app-config";
 import { Quote } from "lucide-react";
@@ -87,9 +87,9 @@ export default async function LoginPage({
               </p>
             )}
 
-            <Button type="submit" className="w-full h-10 mt-2">
+            <SubmitButton pendingLabel="Accediendo…" className="w-full h-10 mt-2">
               Acceder
-            </Button>
+            </SubmitButton>
           </form>
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
