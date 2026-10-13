@@ -1,14 +1,14 @@
-project_id = "kontororu-starter"
+project_id = "induclips"
 
 [api]
 enabled = true
-port = 54421
+port = 54521
 schemas = ["public", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 54422
+port = 54522
 major_version = 17
 
 [db.pooler]
@@ -16,11 +16,11 @@ enabled = false
 
 [studio]
 enabled = true
-port = 54423
+port = 54523
 
 [local_smtp]
 enabled = true
-port = 54424
+port = 54524
 
 [storage]
 enabled = true

@@ -12,8 +12,8 @@ export function isThemeMode(value: unknown): value is ThemeMode {
 
 /**
  * Aplica el tema al <html>. Las dos clases son excluyentes: `.dark` la
- * necesitan las variantes `dark:` de Tailwind, `.light` activa el bloque de
- * overrides claros de tokens.generated.css.
+ * necesitan las variantes `dark:` de Tailwind, `.light` permite anidar un bloque
+ * claro dentro de una página oscura (ver tokens.generated.css).
  */
 export function applyTheme(mode: ThemeMode): void {
   const root = document.documentElement;

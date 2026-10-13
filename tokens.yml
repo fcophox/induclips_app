@@ -18,13 +18,13 @@
 # ─────────────────────────────────────────────────────────
 
 # ═══════════════════════════════════════════════════════════
-#  BASE — Chrome de la aplicación (tema oscuro por defecto / claro)
+#  BASE — Chrome de la aplicación (tema claro por defecto / oscuro)
 # ═══════════════════════════════════════════════════════════
 #  El marco de la aplicación. Sufijo .dark / .light
 #  reparte entre temas; sin sufijo → ambos.
 #
-#  El tema por defecto es OSCURO: los valores .dark viven en
-#  :root y los .light sólo se aplican bajo la clase `.light`.
+#  El tema por defecto es CLARO: los valores .light viven en
+#  :root y los .dark sólo se aplican bajo la clase `.dark`.
 
 base:
   # Superficies
@@ -86,16 +86,35 @@ base:
   colors.destructive-foreground.light: "#ffffff"
   colors.warn.dark: "#f59e0b"
   colors.warn.light: "#f59e0b"
+  colors.warn-foreground.dark: "#fbbf24"
+  colors.warn-foreground.light: "#b45309"
   colors.warn-surface.dark: "#451a0333"
   colors.warn-surface.light: "#fffbeb"
   colors.success.dark: "#10b981"
   colors.success.light: "#10b981"
+  colors.success-foreground.dark: "#34d399"
+  colors.success-foreground.light: "#047857"
   colors.success-surface.dark: "#02251933"
   colors.success-surface.light: "#ecfdf5"
   colors.danger.dark: "#ef4444"
   colors.danger.light: "#ef4444"
   colors.danger-surface.dark: "#45050533"
   colors.danger-surface.light: "#fef2f2"
+
+  # Series de gráficos — paleta categórica validada (CVD) en ambos temas.
+  # El ORDEN es parte de la validación: no reordenar ni intercalar tonos.
+  colors.chart-1.light: "#2a78d6"
+  colors.chart-1.dark: "#3987e5"
+  colors.chart-2.light: "#eb6834"
+  colors.chart-2.dark: "#d95926"
+  colors.chart-3.light: "#1baf7a"
+  colors.chart-3.dark: "#199e70"
+  colors.chart-4.light: "#eda100"
+  colors.chart-4.dark: "#c98500"
+  colors.chart-5.light: "#e87ba4"
+  colors.chart-5.dark: "#d55181"
+  colors.chart-6.light: "#008300"
+  colors.chart-6.dark: "#008300"
 
   # Tipografía — `--font-sansation` lo inyecta next/font en el layout raíz
   fonts.sans: "var(--font-sansation), system-ui, sans-serif"

@@ -47,6 +47,9 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/invite") ||
     pathname.startsWith("/auth") ||
     pathname.startsWith("/pricing") ||
+    // Prototipo InduLearn: datos mock y sesión simulada en el navegador, no
+    // depende de la sesión real de Supabase.
+    pathname.startsWith("/indulearn") ||
     // La API headless se autentica con API Key, no con cookie de sesión.
     pathname.startsWith("/api/v1") ||
     pathname.startsWith("/api/internal");

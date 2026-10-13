@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronsUpDown, LogOut, User } from "lucide-react";
+import { ChevronsUpDown, LogOut, Moon, Sun, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth/actions";
+import { DEFAULT_THEME, THEME_STORAGE_KEY, applyTheme, type ThemeMode } from "@/lib/theme/mode";
 
 type Props = {
   email: string;
@@ -29,7 +30,30 @@ function getInitials(name: string, email: string): string {
 
 export function UserProfileButton({ email, fullName, role, tenantSlug }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mode, setMode] = useState<ThemeMode>(DEFAULT_THEME);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  /*
+   * El tema real vive en la clase del <html>, que <ThemeScript> deja correcta
+   * antes del primer paint. Se lee al abrir el menú y no al montar: el menú
+   * sólo existe en cliente, así que no hay mismatch de hidratación, y la
+   * opción refleja siempre el estado actual.
+   */
+  function toggleMenu() {
+    if (!isOpen) setMode(document.documentElement.classList.contains("dark") ? "dark" : "light");
+    setIsOpen(!isOpen);
+  }
+
+  function toggleTheme() {
+    const next: ThemeMode = mode === "dark" ? "light" : "dark";
+    setMode(next);
+    applyTheme(next);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch {
+      // Sin almacenamiento (modo privado) el tema cambia igual; sólo no persiste.
+    }
+  }
 
   /*
    * El menú se cierra al tocar cualquier otra cosa.
@@ -66,7 +90,7 @@ export function UserProfileButton({ email, fullName, role, tenantSlug }: Props) 
     <div className="relative" ref={menuRef}>
       <Button
         variant="ghost"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleMenu}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         className="h-auto w-full justify-between gap-3 px-3 py-2.5 border border-border/80 bg-card/40 hover:bg-accent/60 hover:text-accent-foreground rounded-[var(--radius)]"
@@ -114,6 +138,17 @@ export function UserProfileButton({ email, fullName, role, tenantSlug }: Props) 
             <User className="size-4" />
             Ver Perfil
           </Link>
+          <button
+            type="button"
+            role="menuitem"
+            // El menú no se cierra al cambiar de tema: el cambio se ve al
+            // instante y la opción pasa a ofrecer el modo contrario.
+            onClick={toggleTheme}
+            className="flex w-full items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            {mode === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            {mode === "dark" ? "Modo Claro" : "Modo Oscuro"}
+          </button>
           <button
             role="menuitem"
             onClick={() => signOut()}

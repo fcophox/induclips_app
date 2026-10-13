@@ -50,6 +50,30 @@ Existen dos espacios a propósito. Con uno solo, un fallo de aislamiento es
 invisible durante el desarrollo; con dos salta a la vista en cuanto aparece en
 una lista algo que pertenece al otro.
 
+## Prototipo InduLearn
+
+En `/indulearn` vive un prototipo navegable de una plataforma de microlearning
+multimarca. Está **aislado** del resto: no usa la sesión de Supabase ni la
+base de datos. Todo son datos de ejemplo guardados en el navegador
+(`localStorage`), y los permisos por marca se simulan en la interfaz — no es
+apto para producción.
+
+Se entra eligiendo un perfil demo (vendedor de una marca, vendedor multimarca
+o administradora). Para volver al estado inicial: *Configuración → Restablecer
+datos* dentro del panel administrativo.
+
+| Pieza | Dónde |
+|---|---|
+| Datos de ejemplo, estado y persistencia local | [`src/lib/indulearn`](src/lib/indulearn) (`seed.ts`, `store.ts`) |
+| Permisos por marca y cálculo de progreso | [`selectors.ts`](src/lib/indulearn/selectors.ts) |
+| Indicadores (historial simulado) | [`analytics.ts`](src/lib/indulearn/analytics.ts) |
+| Componentes: feed, reproductor, gráficos, layouts | [`src/components/indulearn`](src/components/indulearn) |
+| Pantallas | [`src/app/indulearn`](src/app/indulearn) |
+
+El reproductor es demostrativo: simula la reproducción con un reloj, sin
+archivos de video. Para el MVP, `store.ts` es la costura que pasa a hablar con
+el servidor y `analytics.ts` la que pasa a consultar eventos reales.
+
 ## Empezar un proyecto sobre esto
 
 1. **Renombra.** `package.json`, `supabase/config.toml` (`project_id` y los

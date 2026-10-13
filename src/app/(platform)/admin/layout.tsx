@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { notFound } from "next/navigation";
 import { Building2, ScrollText } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getCurrentUser } from "@/lib/auth/tenant-context";
 
 /**
@@ -65,6 +66,9 @@ export default async function PlatformLayout({ children }: { children: React.Rea
 
           <div className="ml-auto flex items-center gap-3 text-xs">
             <span className="text-zinc-400">{user.email}</span>
+            {/* La barra es oscura en los dos temas, así que el botón lleva
+                sus propios colores en vez de los del tema. */}
+            <ThemeToggle className="size-8 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100" />
             <form action="/auth/signout" method="post">
               <button type="submit" className="text-zinc-400 hover:text-zinc-100">
                 Salir

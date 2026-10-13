@@ -2,8 +2,8 @@ import { DEFAULT_THEME, THEME_STORAGE_KEY } from "@/lib/theme/mode";
 
 /**
  * Script bloqueante en <head>. El servidor pinta siempre el tema por defecto
- * (oscuro); esto corrige la clase ANTES del primer paint para quien haya
- * elegido claro, que es lo que evita el flash de tema equivocado.
+ * (claro); esto corrige la clase ANTES del primer paint para quien haya
+ * elegido oscuro, que es lo que evita el flash de tema equivocado.
  *
  * Va inline y sin dependencias a propósito: cualquier import lo convertiría
  * en un chunk asíncrono y volvería el flash.

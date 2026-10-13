@@ -6,7 +6,7 @@
  *   node scripts/generate-tokens.mjs --watch   regenera al guardar
  *
  * Escribe (no editar a mano, se sobreescriben):
- *   src/styles/tokens.generated.css   variables CSS (:root = dark, .light)
+ *   src/styles/tokens.generated.css   variables CSS (:root = light, .dark)
  *   src/lib/tokens.generated.ts       los mismos valores para TypeScript
  *
  * El formato de tokens.yml es plano a propósito (`grupo.nombre.modo: "valor"`),
@@ -119,13 +119,13 @@ function toCss({ shared, light, dark, theme }, brand) {
     "/* Valores literales: Tailwind los necesita en compilación (media queries). */",
     rule("@theme", theme),
     "",
-    "/* Tema por defecto: OSCURO. `.light` en <html> cambia a claro. */",
-    rule(":root", { ...shared, ...brandVars, ...dark }),
+    "/* Tema por defecto: CLARO. `.dark` en <html> cambia a oscuro. */",
+    rule(":root", { ...shared, ...brandVars, ...light }),
     "",
-    rule(".light", light),
-    "",
-    "/* Permite anidar un bloque oscuro dentro de una página clara. */",
     rule(".dark", dark),
+    "",
+    "/* Permite anidar un bloque claro dentro de una página oscura. */",
+    rule(".light", light),
     "",
   ].join("\n");
 }
@@ -138,10 +138,10 @@ function toTs({ shared, light, dark, theme }, brand) {
 /** Tokens presentes en ambos temas (tipografía, radios, espaciado…). */
 export const SHARED_TOKENS = ${literal({ ...shared, ...theme })} as const;
 
-/** Tokens del tema claro. */
+/** Tokens del tema claro — el tema por defecto del CMS. */
 export const LIGHT_TOKENS = ${literal(light)} as const;
 
-/** Tokens del tema oscuro — el tema por defecto del CMS. */
+/** Tokens del tema oscuro. */
 export const DARK_TOKENS = ${literal(dark)} as const;
 
 /** Identidad por defecto de un tenant sin personalizar. */
@@ -151,7 +151,7 @@ export const THEME_MODES = ["dark", "light"] as const;
 export type ThemeMode = (typeof THEME_MODES)[number];
 
 /** Tema aplicado cuando el usuario no ha elegido ninguno. */
-export const DEFAULT_THEME: ThemeMode = "dark";
+export const DEFAULT_THEME: ThemeMode = "light";
 `;
 }
 

@@ -10,7 +10,7 @@ archivos, que **no** se editan a mano:
 
 | Generado | Para qué |
 |----------|----------|
-| [`src/styles/tokens.generated.css`](src/styles/tokens.generated.css) | Variables CSS (`:root` = oscuro, `.light`, `@theme`), importadas por `globals.css` |
+| [`src/styles/tokens.generated.css`](src/styles/tokens.generated.css) | Variables CSS (`:root` = claro, `.dark`, `@theme`), importadas por `globals.css` |
 | [`src/lib/tokens.generated.ts`](src/lib/tokens.generated.ts) | Los mismos valores para TypeScript (`DARK_TOKENS`, `LIGHT_TOKENS`, `BRAND_TOKENS`) |
 
 ```bash
@@ -39,29 +39,29 @@ solo hex hardcodeado en `globals.css` ni en los componentes.
 
 ---
 
-## Temas: oscuro por defecto, claro opcional
+## Temas: claro por defecto, oscuro opcional
 
-La aplicación es **oscura por defecto**. Un sufijo `.dark` / `.light` en `tokens.yml`
+La aplicación es **clara por defecto**. Un sufijo `.dark` / `.light` en `tokens.yml`
 reparte el valor entre los dos temas; sin sufijo aplica a ambos.
 
 | Selector | Contiene |
 |---|---|
-| `:root` | Tokens compartidos + **todos los valores oscuros** |
-| `.light` | Sólo los overrides del tema claro |
-| `.dark` | Los mismos valores oscuros, para anidar un bloque oscuro dentro de una página clara |
+| `:root` | Tokens compartidos + **todos los valores claros** |
+| `.dark` | Sólo los overrides del tema oscuro |
+| `.light` | Los mismos valores claros, para anidar un bloque claro dentro de una página oscura |
 
-Poner el tema oscuro en `:root` es lo que hace que sea el defecto real: si el
-CSS del tema claro nunca llega, la interfaz sigue siendo la correcta.
+Poner el tema claro en `:root` es lo que hace que sea el defecto real: si el
+CSS del tema oscuro nunca llega, la interfaz sigue siendo la correcta.
 
 **Cómo se aplica.** `<html>` se renderiza en el servidor con la clase del tema
 por defecto ([`layout.tsx`](src/app/layout.tsx)). Antes del primer paint,
 [`<ThemeScript>`](src/components/theme-script.tsx) —un script inline y
 bloqueante— lee `localStorage["kntr-theme"]` y corrige la clase si el usuario
 eligió el otro tema. Sin ese script habría un flash de tema equivocado en cada
-carga para los usuarios de tema claro.
+carga para los usuarios de tema oscuro.
 
-Las dos clases son excluyentes: `.dark` la necesitan las variantes `dark:` de
-Tailwind, `.light` activa el bloque de overrides. Ambas las gestiona
+Las dos clases son excluyentes: `.dark` activa el bloque de overrides y las
+variantes `dark:` de Tailwind, `.light` marca el tema claro de forma explícita. Ambas las gestiona
 `applyTheme()` en [`src/lib/theme/mode.ts`](src/lib/theme/mode.ts).
 
 Para dar al usuario el conmutador, monta
@@ -90,7 +90,7 @@ sidebar. El nombre CSS se deriva del grupo en `tokens.yml`:
 > dentro de `@theme`, no en `:root`, que es lo que permite que `lg:` en
 > Tailwind responda a lo que dice el YAML.
 
-`--font-sans-stack` referencia `--font-inter`, que inyecta `next/font` en el
+`--font-sans-stack` referencia `--font-sansation`, que inyecta `next/font` en el
 layout raíz. Si cambias esa variable en `layout.tsx`, cámbiala también en
 `fonts.sans`.
 
@@ -168,7 +168,7 @@ tema solo.
 
 | Contexto | Tokens principales | Notas |
 |---|---|---|
-| **Chrome de la app** | `background`, `foreground`, `card`, `muted`, `border`, `sidebar-*` | Core del tema, oscuro por defecto |
+| **Chrome de la app** | `background`, `foreground`, `card`, `muted`, `border`, `sidebar-*` | Core del tema, claro por defecto |
 | **Acentos de marca** | `primary`, `secondary`, `accent`, `ring`, `radius` | Los sobreescribe `<TenantTheme>` por tenant |
 | **Estados** | `destructive`, `warn`, `success`, `danger` (+ `-surface`) | Badges y callouts |
 | **Identidad exacta** | `brand-primary`, `brand-secondary` | El hex del cliente sin ajuste de contraste |

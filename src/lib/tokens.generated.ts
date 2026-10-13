@@ -21,7 +21,7 @@ export const SHARED_TOKENS = {
   "--breakpoint-2xl": "96rem"
 } as const;
 
-/** Tokens del tema claro. */
+/** Tokens del tema claro — el tema por defecto del CMS. */
 export const LIGHT_TOKENS = {
   "--background": "#ffffff",
   "--foreground": "#0a0a0a",
@@ -48,17 +48,25 @@ export const LIGHT_TOKENS = {
   "--destructive": "#ef4444",
   "--destructive-foreground": "#ffffff",
   "--warn": "#f59e0b",
+  "--warn-foreground": "#b45309",
   "--warn-surface": "#fffbeb",
   "--success": "#10b981",
+  "--success-foreground": "#047857",
   "--success-surface": "#ecfdf5",
   "--danger": "#ef4444",
   "--danger-surface": "#fef2f2",
+  "--chart-1": "#2a78d6",
+  "--chart-2": "#eb6834",
+  "--chart-3": "#1baf7a",
+  "--chart-4": "#eda100",
+  "--chart-5": "#e87ba4",
+  "--chart-6": "#008300",
   "--shadow-sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
   "--shadow-md": "0 4px 6px -1px rgb(0 0 0 / 0.1)",
   "--shadow-lg": "0 10px 15px -3px rgb(0 0 0 / 0.1)"
 } as const;
 
-/** Tokens del tema oscuro — el tema por defecto del CMS. */
+/** Tokens del tema oscuro. */
 export const DARK_TOKENS = {
   "--background": "#191919",
   "--foreground": "#fafafa",
@@ -85,11 +93,19 @@ export const DARK_TOKENS = {
   "--destructive": "#7f1d1d",
   "--destructive-foreground": "#fafafa",
   "--warn": "#f59e0b",
+  "--warn-foreground": "#fbbf24",
   "--warn-surface": "#451a0333",
   "--success": "#10b981",
+  "--success-foreground": "#34d399",
   "--success-surface": "#02251933",
   "--danger": "#ef4444",
   "--danger-surface": "#45050533",
+  "--chart-1": "#3987e5",
+  "--chart-2": "#d95926",
+  "--chart-3": "#199e70",
+  "--chart-4": "#c98500",
+  "--chart-5": "#d55181",
+  "--chart-6": "#008300",
   "--shadow-sm": "0 1px 2px 0 rgb(0 0 0 / 0.4)",
   "--shadow-md": "0 4px 6px -1px rgb(0 0 0 / 0.5)",
   "--shadow-lg": "0 10px 15px -3px rgb(0 0 0 / 0.55)"
@@ -106,4 +122,4 @@ export const THEME_MODES = ["dark", "light"] as const;
 export type ThemeMode = (typeof THEME_MODES)[number];
 
 /** Tema aplicado cuando el usuario no ha elegido ninguno. */
-export const DEFAULT_THEME: ThemeMode = "dark";
+export const DEFAULT_THEME: ThemeMode = "light";

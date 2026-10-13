@@ -35,8 +35,10 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-warn: var(--warn);
+  --color-warn-foreground: var(--warn-foreground);
   --color-warn-surface: var(--warn-surface);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-success-surface: var(--success-surface);
   --color-danger: var(--danger);
   --color-danger-surface: var(--danger-surface);
@@ -48,6 +50,12 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-border: var(--sidebar-border);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
 
   --font-sans: var(--font-sans-stack);
   --font-mono: var(--font-mono-stack);
@@ -143,4 +151,40 @@
 
 @utility animate-drawer-in {
   animation: drawer-slide-in 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* -------------------------------------------------------------------
+ * InduLearn — reproductor demostrativo y avisos.
+ * ------------------------------------------------------------------- */
+@keyframes il-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(6%, -8%, 0) scale(1.15); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@utility animate-il-drift {
+  animation: il-drift 9s ease-in-out infinite;
+}
+
+@keyframes il-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@utility animate-il-toast {
+  animation: il-toast-in 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@utility il-no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-il-drift {
+    animation: none;
+  }
 }
