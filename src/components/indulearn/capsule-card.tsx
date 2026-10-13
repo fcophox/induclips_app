@@ -68,13 +68,28 @@ export function CapsuleArt({
   );
 }
 
-export function CapsuleThumb({ capsule, className }: { capsule: Capsule; className?: string }) {
+/**
+ * Portada de una cápsula. Siempre vertical (9:16), como el propio video: una
+ * portada apaisada prometería un formato que el reproductor no tiene.
+ */
+export function CapsuleThumb({
+  capsule,
+  hasDuration = true,
+  className,
+}: {
+  capsule: Capsule;
+  /** Se oculta en portadas muy pequeñas, donde la etiqueta taparía el dibujo. */
+  hasDuration?: boolean;
+  className?: string;
+}) {
   return (
-    <div className={cn("relative aspect-video overflow-hidden rounded-lg", className)}>
+    <div className={cn("relative aspect-[9/16] overflow-hidden rounded-lg", className)}>
       <CapsuleArt capsule={capsule} />
-      <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-white">
-        {formatDuration(capsule.durationSec)}
-      </span>
+      {hasDuration && (
+        <span className="absolute bottom-1 right-1 rounded bg-black/70 px-1 py-0.5 text-[11px] font-medium leading-none tabular-nums text-white">
+          {formatDuration(capsule.durationSec)}
+        </span>
+      )}
     </div>
   );
 }
@@ -107,7 +122,7 @@ export function CapsuleCard({
         className,
       )}
     >
-      <div className="relative aspect-video overflow-hidden">
+      <div className="relative aspect-[9/16] overflow-hidden">
         <CapsuleArt capsule={capsule} />
         <span className="absolute inset-0 grid place-items-center">
           <span className="grid size-12 place-items-center rounded-full bg-white/95 text-slate-900 shadow-lg transition-transform group-hover:scale-105">
@@ -124,7 +139,7 @@ export function CapsuleCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-4">
+      <div className="flex flex-1 flex-col gap-2.5 p-3 sm:gap-3 sm:p-4">
         <div className="flex flex-wrap items-center gap-1.5">
           {capsule.brandIds.map((id) => {
             const brand = brandById(state, id);
@@ -135,7 +150,7 @@ export function CapsuleCard({
 
         <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground">{capsule.title}</h3>
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-1">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 pt-1">
           <StateBadge state={status} />
           <span className="text-sm font-medium text-primary">
             {action}

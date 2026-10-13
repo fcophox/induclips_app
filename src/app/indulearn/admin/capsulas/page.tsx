@@ -162,7 +162,7 @@ export default function CapsulesAdminPage() {
                     <tr key={capsule.id} className="text-sm text-foreground">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <CapsuleThumb capsule={capsule} className="w-20 shrink-0" />
+                          <CapsuleThumb capsule={capsule} hasDuration={false} className="w-10 shrink-0" />
                           <span className="line-clamp-2 max-w-56 font-medium leading-snug">{capsule.title}</span>
                         </div>
                       </td>
@@ -188,7 +188,7 @@ export default function CapsulesAdminPage() {
               <li key={capsule.id}>
                 <Card className="p-4">
                   <div className="flex gap-3">
-                    <CapsuleThumb capsule={capsule} className="w-24 shrink-0 self-start" />
+                    <CapsuleThumb capsule={capsule} className="w-14 shrink-0 self-start" />
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">{capsule.title}</p>
                       <p className="mt-1 text-xs text-muted-foreground">

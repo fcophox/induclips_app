@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -33,7 +33,7 @@ import type { Role, User } from "@/lib/indulearn/types";
 import { THEME_STORAGE_KEY, applyTheme, type ThemeMode } from "@/lib/theme/mode";
 import { cn } from "@/lib/utils";
 
-import { Avatar, EmptyState, Logo, Skeleton } from "./ui";
+import { Avatar, BrandBadge, EmptyState, Logo, Skeleton } from "./ui";
 
 type NavItem = { href: string; label: string; shortLabel?: string; icon: LucideIcon; isExact?: boolean };
 
@@ -118,12 +118,60 @@ function SidebarLink({ item, isActive, onNavigate }: { item: NavItem; isActive: 
 
 // ── Menú de cuenta ────────────────────────────────────────────────────────
 
-function AccountMenu({ user, placement }: { user: User; placement: "top" | "bottom" }) {
+/**
+ * Acciones de cuenta (tema, cambio de perfil demo, cierre de sesión). Las
+ * comparten el menú de la barra lateral y el panel del menú hamburguesa.
+ */
+function useAccountActions(user: User, onDone: () => void) {
   const state = useAppState();
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<ThemeMode>("light");
+
+  // El tema real vive en la clase del <html>: se lee al abrir, no al montar.
+  function syncMode() {
+    setMode(document.documentElement.classList.contains("dark") ? "dark" : "light");
+  }
+
+  function toggleTheme() {
+    const next: ThemeMode = mode === "dark" ? "light" : "dark";
+    setMode(next);
+    applyTheme(next);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch {
+      // Sin almacenamiento el tema cambia igual; sólo no persiste.
+    }
+  }
+
+  function switchTo(next: User) {
+    onDone();
+    login(next.id);
+    toast(`Ahora ves la plataforma como ${next.name}`, "info");
+    router.push(homeFor(next));
+  }
+
+  function signOut() {
+    onDone();
+    logout();
+    router.push("/indulearn");
+  }
+
+  const demoProfiles = state.users.filter(
+    (profile) => (DEMO_PROFILE_IDS as readonly string[]).includes(profile.id) && profile.id !== user.id,
+  );
+
+  return { mode, syncMode, toggleTheme, switchTo, signOut, demoProfiles };
+}
+
+const ACCOUNT_ITEM =
+  "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-foreground outline-none transition-colors hover:bg-accent focus-visible:bg-accent";
+
+function AccountMenu({ user, placement }: { user: User; placement: "top" | "bottom" }) {
+  const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const { mode, syncMode, toggleTheme, switchTo, signOut, demoProfiles } = useAccountActions(user, () =>
+    setIsOpen(false),
+  );
 
   useEffect(() => {
     if (!isOpen) return;
@@ -142,39 +190,11 @@ function AccountMenu({ user, placement }: { user: User; placement: "top" | "bott
   }, [isOpen]);
 
   function toggleMenu() {
-    if (!isOpen) setMode(document.documentElement.classList.contains("dark") ? "dark" : "light");
+    if (!isOpen) syncMode();
     setIsOpen(!isOpen);
   }
 
-  function toggleTheme() {
-    const next: ThemeMode = mode === "dark" ? "light" : "dark";
-    setMode(next);
-    applyTheme(next);
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      // Sin almacenamiento el tema cambia igual; sólo no persiste.
-    }
-  }
-
-  function switchTo(next: User) {
-    setIsOpen(false);
-    login(next.id);
-    toast(`Ahora ves la plataforma como ${next.name}`, "info");
-    router.push(homeFor(next));
-  }
-
-  function signOut() {
-    setIsOpen(false);
-    logout();
-    router.push("/indulearn");
-  }
-
-  const demoProfiles = state.users.filter(
-    (profile) => (DEMO_PROFILE_IDS as readonly string[]).includes(profile.id) && profile.id !== user.id,
-  );
-  const itemClass =
-    "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-foreground outline-none transition-colors hover:bg-accent focus-visible:bg-accent";
+  const itemClass = ACCOUNT_ITEM;
 
   return (
     <div className="relative" ref={rootRef}>
@@ -263,6 +283,131 @@ function AccountMenu({ user, placement }: { user: User; placement: "top" | "bott
   );
 }
 
+// ── Panel de cuenta (móvil) ───────────────────────────────────────────────
+
+/**
+ * Panel que entra desde la izquierda al pulsar el menú hamburguesa. Reúne los
+ * datos y acciones de la cuenta, los mismos que ofrece el avatar de la
+ * derecha, en un formato cómodo para el pulgar.
+ */
+function AccountDrawer({ user, isOpen, onClose }: { user: User; isOpen: boolean; onClose: () => void }) {
+  const state = useAppState();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const { mode, syncMode, toggleTheme, switchTo, signOut, demoProfiles } = useAccountActions(user, onClose);
+  const brands = state.brands.filter((brand) => brand.status === "active" && user.brandIds.includes(brand.id));
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    syncMode();
+    panelRef.current?.focus();
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      document.body.style.overflow = "";
+    };
+
+    // `syncMode` se recrea en cada render; sólo interesa reaccionar a abrir/cerrar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 lg:hidden">
+      <div className="animate-backdrop-in absolute inset-0 bg-background/60 backdrop-blur-xs" onClick={onClose} aria-hidden />
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mi cuenta"
+        tabIndex={-1}
+        className="animate-drawer-in-left absolute inset-y-0 left-0 flex w-[85%] max-w-sm flex-col border-r bg-card shadow-xl outline-none"
+      >
+        <div className="flex h-14 shrink-0 items-center justify-between border-b pl-4 pr-2">
+          <Logo />
+          <Button variant="ghost" size="icon" aria-label="Cerrar menú" onClick={onClose}>
+            <X />
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div className="border-b p-5">
+            <div className="flex items-center gap-3">
+              <Avatar name={user.name} className="size-12 text-sm" />
+              <div className="min-w-0">
+                <p className="truncate text-base font-semibold text-foreground">{user.name}</p>
+                <p className="truncate text-sm text-muted-foreground">{ROLE_LABEL[user.role]}</p>
+              </div>
+            </div>
+            <dl className="mt-4 flex flex-col gap-3 text-sm">
+              <div>
+                <dt className="text-xs text-muted-foreground">Correo electrónico</dt>
+                <dd className="break-all text-foreground">{user.email}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">Concesionario</dt>
+                <dd className="text-foreground">{user.dealer}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">Marcas</dt>
+                <dd className="mt-1 flex flex-wrap gap-1.5">
+                  {brands.map((brand) => (
+                    <BrandBadge key={brand.id} brand={brand} />
+                  ))}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="flex flex-col gap-0.5 p-2">
+            <Link href="/indulearn/perfil" className={cn(ACCOUNT_ITEM, "min-h-11")} onClick={onClose}>
+              <UserRound className="size-4" aria-hidden />
+              Mi perfil
+            </Link>
+            <button type="button" className={cn(ACCOUNT_ITEM, "min-h-11")} onClick={toggleTheme}>
+              {mode === "dark" ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+              {mode === "dark" ? "Modo claro" : "Modo oscuro"}
+            </button>
+          </div>
+
+          {demoProfiles.length > 0 && (
+            <div className="flex flex-col gap-0.5 border-t p-2">
+              <p className="px-2.5 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Cambiar perfil demo
+              </p>
+              {demoProfiles.map((profile) => (
+                <button key={profile.id} type="button" className={cn(ACCOUNT_ITEM, "min-h-11")} onClick={() => switchTo(profile)}>
+                  <Repeat className="size-4 shrink-0" aria-hidden />
+                  <span className="min-w-0">
+                    <span className="block truncate">{profile.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{ROLE_LABEL[profile.role]}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="shrink-0 border-t p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          <button
+            type="button"
+            onClick={signOut}
+            className={cn(ACCOUNT_ITEM, "min-h-11 text-destructive hover:bg-destructive/10 focus-visible:bg-destructive/10")}
+          >
+            <LogOut className="size-4" aria-hidden />
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Portal del colaborador ────────────────────────────────────────────────
 
 export function CollaboratorShell({ children }: { children: React.ReactNode }) {
@@ -270,6 +415,8 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   // El feed ocupa toda la pantalla: sin cabecera ni márgenes alrededor.
   const isImmersive = pathname.startsWith("/indulearn/explorar");
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const closeAccount = useCallback(() => setIsAccountOpen(false), []);
 
   if (!isReady || !user) return <ShellSkeleton />;
 
@@ -301,13 +448,28 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {!isImmersive && (
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-card px-4 lg:hidden">
-          <Link href="/indulearn/inicio" className="rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
-            <Logo />
-          </Link>
-          <AccountMenu user={user} placement="bottom" />
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-card pl-2 pr-4 lg:hidden">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Abrir menú de cuenta"
+              aria-haspopup="dialog"
+              aria-expanded={isAccountOpen}
+              onClick={() => setIsAccountOpen(true)}
+            >
+              <Menu />
+            </Button>
+            <Link href="/indulearn/inicio" className="rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
+              <Logo />
+            </Link>
+          </div>
+          {/* Sólo identifica la sesión: las acciones de cuenta están en el panel del menú. */}
+          <Avatar name={user.name} />
         </header>
       )}
+
+      <AccountDrawer user={user} isOpen={isAccountOpen} onClose={closeAccount} />
 
       <main className="pb-16 lg:pb-0 lg:pl-64">
         {isImmersive ? children : <div className="mx-auto max-w-6xl px-4 py-6 lg:px-8 lg:py-8">{children}</div>}

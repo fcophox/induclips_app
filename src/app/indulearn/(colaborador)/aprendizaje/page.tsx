@@ -130,8 +130,8 @@ export default function LearningPage() {
           <ul className="mt-4 flex flex-col gap-3">
             {rows.map(({ capsule, progress, status, percent }) => (
               <li key={capsule.id}>
-                <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-                  <CapsuleThumb capsule={capsule} className="w-full shrink-0 sm:w-40" />
+                <Card className="grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-3 p-4 sm:flex sm:items-center">
+                  <CapsuleThumb capsule={capsule} className="w-full shrink-0 self-start sm:w-24" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5">
                       {brands
@@ -153,7 +153,7 @@ export default function LearningPage() {
                       {progress ? `Última vez: ${formatRelative(progress.updatedAt).toLowerCase()}` : "Aún no la has visto"}
                     </p>
                   </div>
-                  <div className="flex shrink-0 flex-wrap gap-2 sm:flex-col">
+                  <div className="col-span-2 flex shrink-0 flex-wrap gap-2 sm:flex-col">
                     <Button asChild size="sm" variant={status === "completed" ? "outline" : "default"}>
                       <Link href={capsuleHref(capsule.id)}>
                         <Play className="fill-current" />

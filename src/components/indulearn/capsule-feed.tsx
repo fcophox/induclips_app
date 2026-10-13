@@ -297,7 +297,7 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                         capsule.id === active.id && "bg-accent",
                       )}
                     >
-                      <CapsuleThumb capsule={capsule} className="w-24 shrink-0" />
+                      <CapsuleThumb capsule={capsule} className="w-14 shrink-0" />
                       <span className="min-w-0 flex-1">
                         <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">{capsule.title}</span>
                         <span className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">

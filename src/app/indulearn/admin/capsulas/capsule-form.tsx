@@ -136,12 +136,12 @@ export function CapsuleForm({
 
         <fieldset>
           <legend className="mb-1.5 text-sm font-medium text-foreground">Miniatura</legend>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+          <div className="grid max-w-sm grid-cols-6 gap-2">
             {THUMB_STYLES.map((style, index) => (
               <label
                 key={style.name}
                 className={cn(
-                  "relative block aspect-video cursor-pointer overflow-hidden rounded-lg bg-gradient-to-br ring-offset-2 ring-offset-card",
+                  "relative block aspect-[9/16] cursor-pointer overflow-hidden rounded-lg bg-gradient-to-br ring-offset-2 ring-offset-card",
                   "has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50",
                   style.className,
                   thumb === index && "ring-2 ring-primary",

@@ -85,14 +85,14 @@ export default function HomePage() {
           Continuar aprendiendo
         </h2>
         {next ? (
-          <Card className="mt-3 flex flex-col overflow-hidden sm:flex-row">
-            <div className="relative aspect-video sm:aspect-auto sm:w-72 sm:shrink-0">
+          <Card className="mt-3 flex overflow-hidden">
+            <div className="relative m-4 mr-0 aspect-[9/16] w-24 shrink-0 self-start overflow-hidden rounded-lg sm:m-5 sm:mr-0 sm:w-36">
               <CapsuleArt capsule={next} />
-              <span className="absolute bottom-2 right-2 rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium tabular-nums text-white">
+              <span className="absolute bottom-1 right-1 rounded bg-black/70 px-1 py-0.5 text-[11px] font-medium leading-none tabular-nums text-white">
                 {formatDuration(next.durationSec)}
               </span>
             </div>
-            <div className="flex flex-1 flex-col gap-3 p-5">
+            <div className="flex min-w-0 flex-1 flex-col gap-3 p-4 sm:p-5">
               <div className="flex flex-wrap items-center gap-1.5">
                 {brands
                   .filter((brand) => next.brandIds.includes(brand.id))
@@ -188,7 +188,7 @@ export default function HomePage() {
             className="mt-4"
           />
         ) : (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
             {filtered.map((capsule) => (
               <CapsuleCard key={capsule.id} capsule={capsule} state={state} userId={user.id} />
             ))}
