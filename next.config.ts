@@ -38,7 +38,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       // Logos y medios servidos desde el Storage del tenant.
       { protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/**" },
-      { protocol: "http", hostname: "127.0.0.1", port: "54421", pathname: "/storage/v1/object/**" },
+      { protocol: "http", hostname: "127.0.0.1", port: "54521", pathname: "/storage/v1/object/**" },
     ],
   },
 
