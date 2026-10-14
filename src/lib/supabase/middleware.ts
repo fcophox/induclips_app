@@ -17,6 +17,21 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
  *    refrescado y provoca cierres de sesión aleatorios al expirar el access token.
  */
 export async function updateSession(request: NextRequest) {
+  // Prototipo InduLearn: datos mock y sesión simulada en el navegador. Sale
+  // antes de crear el cliente para no depender de Supabase (ni de sus
+  // variables de entorno) y poder desplegar la demo sin backend.
+  if (request.nextUrl.pathname.startsWith("/indulearn")) {
+    return NextResponse.next({ request });
+  }
+
+  // Mientras la demo sea lo que se publica, la raíz abre InduLearn. Es
+  // temporal (307): `/login` y el resto de la plantilla siguen disponibles.
+  if (request.nextUrl.pathname === "/") {
+    const demo = request.nextUrl.clone();
+    demo.pathname = "/indulearn";
+    return NextResponse.redirect(demo);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -42,14 +57,10 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isPublic =
-    pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/invite") ||
     pathname.startsWith("/auth") ||
     pathname.startsWith("/pricing") ||
-    // Prototipo InduLearn: datos mock y sesión simulada en el navegador, no
-    // depende de la sesión real de Supabase.
-    pathname.startsWith("/indulearn") ||
     // La API headless se autentica con API Key, no con cookie de sesión.
     pathname.startsWith("/api/v1") ||
     pathname.startsWith("/api/internal");
