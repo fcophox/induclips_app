@@ -12,6 +12,6 @@ export const config = {
      * hacer una llamada a `getUser()` por cada imagen multiplicaría la
      * latencia del dashboard sin aportar nada.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|mp4|webm|vtt)$).*)",
   ],
 };

@@ -1,7 +1,7 @@
-import type { AppState, Brand, Capsule, Progress, SubtitleCue, User } from "./types";
+import type { AppState, Brand, Capsule, Comment, Progress, SubtitleCue, User } from "./types";
 
 /** Subir este número descarta el estado guardado en el navegador. */
-export const STATE_VERSION = 1;
+export const STATE_VERSION = 4;
 
 export const DEALERS = [
   "Sucursal Santiago Centro",
@@ -153,6 +153,65 @@ function buildCapsules(now: Date): Capsule[] {
         "La entrega es el momento que más se recuerda.",
       ]),
     },
+    // Videos reales de ejemplo, en public/indulearn/videos. Contenido técnico
+    // común a todas las marcas.
+    {
+      id: "c-motor-tecnico",
+      title: "El motor explicado por un técnico",
+      description:
+        "Un técnico del taller resume cómo trabaja el motor: combustión, temperatura de operación y eficiencia.",
+      brandIds: ["kia", "hyundai", "landking", "sinotruk"],
+      category: "Tecnología",
+      durationSec: 8,
+      status: "published",
+      publishedAt: daysAgo(0, now),
+      videoRef: "/indulearn/videos/motor-explicado-por-tecnico.mp4",
+      posterRef: "/indulearn/videos/motor-explicado-por-tecnico.jpg",
+      thumb: 1,
+      subtitles: cues(8, [
+        "Todo empieza en la cámara de combustión.",
+        "La temperatura de operación es clave.",
+        "Un motor bien cuidado es más eficiente.",
+      ]),
+    },
+    {
+      id: "c-frenos",
+      title: "Cómo funcionan los frenos",
+      description:
+        "Del pedal a la rueda: frenado normal, frenado de emergencia y cómo contárselo al cliente en la prueba de manejo.",
+      brandIds: ["kia", "hyundai", "landking", "sinotruk"],
+      category: "Seguridad",
+      durationSec: 8,
+      status: "published",
+      publishedAt: daysAgo(0, now),
+      videoRef: "/indulearn/videos/como-funcionan-los-frenos.mp4",
+      posterRef: "/indulearn/videos/como-funcionan-los-frenos.jpg",
+      thumb: 2,
+      subtitles: cues(8, [
+        "Al pisar el pedal, la presión llega a cada rueda.",
+        "El frenado de emergencia detiene el auto a tiempo.",
+        "Muéstralo en la prueba de manejo.",
+      ]),
+    },
+    {
+      id: "c-motor-anatomia",
+      title: "Anatomía del motor",
+      description:
+        "Pistones, bielas y árbol de levas: las piezas del motor, una a una, hasta que queda montado en el vehículo.",
+      brandIds: ["kia", "hyundai", "landking", "sinotruk"],
+      category: "Producto",
+      durationSec: 8,
+      status: "published",
+      publishedAt: daysAgo(0, now),
+      videoRef: "/indulearn/videos/anatomia-del-motor.mp4",
+      posterRef: "/indulearn/videos/anatomia-del-motor.jpg",
+      thumb: 3,
+      subtitles: cues(8, [
+        "Los pistones transforman la combustión en movimiento.",
+        "El árbol de levas coordina las válvulas.",
+        "Así queda montado dentro del vehículo.",
+      ]),
+    },
   ];
 }
 
@@ -278,6 +337,46 @@ function entry(seconds: number, startedDays: number, updatedDays: number, done: 
   };
 }
 
+type SeedComment = {
+  id: string;
+  capsuleId: string;
+  userId: string | null;
+  replyTo?: string;
+  text: string;
+  days: number;
+  likedBy?: string[];
+};
+
+/** Comentarios de ejemplo: alumnos, docentes (admins) y avisos de la plataforma. */
+const COMMENTS: SeedComment[] = [
+  { id: "cm-1", capsuleId: "c-kia-seguridad", userId: null, text: "Esta cápsula forma parte de la certificación de seguridad 2026. Complétala antes de fin de mes.", days: 10, likedBy: ["u-javier", "u-ignacio"] },
+  { id: "cm-2", capsuleId: "c-kia-seguridad", userId: "u-matias", text: "Muy claro lo del frenado autónomo, lo usé ayer con un cliente.", days: 8, likedBy: ["u-carolina", "u-paula", "u-javier"] },
+  { id: "cm-3", capsuleId: "c-kia-seguridad", userId: "u-carolina", replyTo: "cm-2", text: "¡Bien, Matías! Recuerden mostrar también la alerta de punto ciego en la prueba de manejo.", days: 7, likedBy: ["u-matias"] },
+  { id: "cm-4", capsuleId: "c-kia-seguridad", userId: "u-paula", replyTo: "cm-2", text: "A mí me pasó lo mismo, el cliente quedó convencido.", days: 6 },
+  { id: "cm-5", capsuleId: "c-kia-seguridad", userId: "u-javier", text: "¿Habrá una cápsula sobre el asistente de mantención de carril?", days: 3, likedBy: ["u-ignacio"] },
+  { id: "cm-6", capsuleId: "c-kia-seguridad", userId: "u-carolina", replyTo: "cm-5", text: "Sí, Javier, está en producción. La publicamos la próxima semana.", days: 2 },
+  { id: "cm-7", capsuleId: "c-kia-argumentos", userId: "u-ignacio", text: "El argumento de garantía es el que más me funciona en sala.", days: 2, likedBy: ["u-javier", "u-paula"] },
+  { id: "cm-8", capsuleId: "c-kia-argumentos", userId: "u-carolina", replyTo: "cm-7", text: "Sumen el costo de mantención a 5 años: suele cerrar la conversación.", days: 1, likedBy: ["u-ignacio"] },
+  { id: "cm-9", capsuleId: "c-kia-argumentos", userId: null, text: "¿Qué objeción escuchas más seguido? Cuéntanos y la incluimos en la próxima cápsula.", days: 1 },
+  { id: "cm-10", capsuleId: "c-hyundai-asistencia", userId: "u-fernanda", text: "Me ayudó a explicar el control crucero adaptativo sin enredarme.", days: 11, likedBy: ["u-camila"] },
+  { id: "cm-11", capsuleId: "c-hyundai-asistencia", userId: null, text: "Actualizamos los subtítulos de esta cápsula.", days: 5 },
+  { id: "cm-12", capsuleId: "c-hyundai-atencion", userId: "u-camila", text: "Practiqué el saludo inicial y los clientes lo notan.", days: 3, likedBy: ["u-fernanda"] },
+  { id: "cm-13", capsuleId: "c-landking-portafolio", userId: "u-diego", text: "Buen resumen del portafolio, lo compartí con el equipo de Antofagasta.", days: 5, likedBy: ["u-valentina"] },
+  { id: "cm-14", capsuleId: "c-landking-portafolio", userId: "u-carolina", replyTo: "cm-13", text: "Gracias, Diego. Pronto subimos la ficha comparativa por modelo.", days: 4 },
+  { id: "cm-15", capsuleId: "c-sinotruk-atributos", userId: "u-valentina", text: "El dato de consumo por tonelada es clave para flotas.", days: 7, likedBy: ["u-sebastian", "u-diego"] },
+  { id: "cm-16", capsuleId: "c-sinotruk-atributos", userId: "u-sebastian", text: "¿Dónde encuentro la ficha técnica en PDF?", days: 2 },
+  { id: "cm-17", capsuleId: "c-sinotruk-atributos", userId: "u-carolina", replyTo: "cm-16", text: "Está en la intranet comercial, sección Sinotruk › Fichas.", days: 1, likedBy: ["u-sebastian"] },
+];
+
+function buildComments(now: Date): Comment[] {
+  return COMMENTS.map(({ replyTo, days, likedBy, ...comment }) => ({
+    ...comment,
+    parentId: replyTo ?? null,
+    createdAt: daysAgo(days, now),
+    likedBy: likedBy ?? [],
+  }));
+}
+
 export function createSeedState(now: Date = new Date()): AppState {
   return {
     version: STATE_VERSION,
@@ -311,6 +410,15 @@ export function createSeedState(now: Date = new Date()): AppState {
       },
     },
     saved: { "u-matias": ["c-kia-argumentos"] },
+    likes: {
+      "c-kia-seguridad": ["u-javier", "u-ignacio", "u-paula", "u-carolina"],
+      "c-kia-argumentos": ["u-matias", "u-javier"],
+      "c-hyundai-asistencia": ["u-fernanda", "u-camila", "u-javier"],
+      "c-hyundai-atencion": ["u-fernanda"],
+      "c-landking-portafolio": ["u-diego", "u-valentina"],
+      "c-sinotruk-atributos": ["u-valentina", "u-sebastian", "u-diego", "u-tomas"],
+    },
+    comments: buildComments(now),
     settings: {
       completionThreshold: 90,
       autoplayMuted: true,

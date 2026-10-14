@@ -46,8 +46,14 @@ export type Capsule = {
   status: CapsuleStatus;
   /** ISO. `null` mientras nunca se haya publicado. */
   publishedAt: string | null;
-  /** Referencia al archivo o URL del video. En el prototipo es sólo un dato. */
+  /**
+   * Archivo o URL del video. Una ruta (`/indulearn/videos/…`) o una URL
+   * `http(s)` se reproduce de verdad; cualquier otro valor (`demo://…`) usa el
+   * reproductor simulado.
+   */
   videoRef: string;
+  /** Imagen de portada. Sin ella, la portada es la ilustración generada. */
+  posterRef?: string;
   /** Índice del estilo de miniatura generada (ver `THUMB_STYLES`). */
   thumb: number;
   subtitles: SubtitleCue[];
@@ -81,6 +87,23 @@ export type Progress = {
   completedAt: string | null;
 };
 
+/**
+ * Comentario en una cápsula. `userId: null` es un mensaje de la plataforma
+ * (avisos del equipo InduLearn); si no, el rol del autor decide si se muestra
+ * como alumno o como docente.
+ */
+export type Comment = {
+  id: string;
+  capsuleId: string;
+  userId: string | null;
+  /** Comentario al que responde. Sólo hay un nivel de respuestas. */
+  parentId: string | null;
+  text: string;
+  createdAt: string;
+  /** Ids de usuarios que marcaron "me gusta" en el comentario. */
+  likedBy: string[];
+};
+
 export type Settings = {
   /** Porcentaje de visualización a partir del cual una cápsula cuenta como completada. */
   completionThreshold: number;
@@ -98,6 +121,9 @@ export type AppState = {
   progress: Record<string, Record<string, Progress>>;
   /** saved[userId] = ids de cápsulas guardadas */
   saved: Record<string, string[]>;
+  /** likes[capsuleId] = ids de usuarios que marcaron "me gusta" */
+  likes: Record<string, string[]>;
+  comments: Comment[];
   settings: Settings;
   sessionUserId: string | null;
 };

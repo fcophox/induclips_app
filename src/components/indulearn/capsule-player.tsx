@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Captions, CaptionsOff, Check, Pause, Play, Volume2, VolumeX } from "lucide-react";
 
 import { formatDuration } from "@/lib/indulearn/format";
@@ -31,13 +31,18 @@ type Props = {
   className?: string;
 };
 
+/** Rutas locales y URLs http(s) se reproducen; el resto (`demo://…`) se simula. */
+function isPlayableSource(ref: string): boolean {
+  return /^(\/|https?:\/\/)/.test(ref);
+}
+
 /**
- * Reproductor DEMOSTRATIVO.
+ * Reproductor de cápsulas.
  *
- * No hay archivos de video en el prototipo: se simula una reproducción con un
- * reloj y un fondo animado, lo que basta para mostrar el formato vertical, los
- * subtítulos y el registro de progreso. Sustituir el reloj por un `<video>`
- * (eventos `timeupdate` / `ended`) no cambia nada de lo que hay alrededor.
+ * Si la cápsula tiene un archivo de video, lo reproduce con `<video>` y toma la
+ * posición de sus eventos (`timeupdate` / `ended`). Si no, simula la
+ * reproducción con un reloj y un fondo animado. Controles, subtítulos y
+ * registro de progreso son los mismos en los dos casos.
  */
 export function CapsulePlayer({
   capsule,
@@ -56,8 +61,11 @@ export function CapsulePlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [hasSubtitles, setHasSubtitles] = useState(settings.subtitlesDefault);
+  const mediaRef = useRef<HTMLVideoElement>(null);
+  const hasMedia = isPlayableSource(capsule.videoRef);
+  const [mediaDuration, setMediaDuration] = useState<number | null>(null);
 
-  const duration = capsule.durationSec;
+  const duration = mediaDuration ?? capsule.durationSec;
   const hasEnded = position >= duration;
 
   // Al entrar en pantalla arranca sola y en silencio (si así está configurado);
@@ -67,13 +75,31 @@ export function CapsulePlayer({
     if (isActive) setIsMuted(true);
   }, [isActive, settings.autoplayMuted]);
 
+  // Reloj del modo simulado.
   useEffect(() => {
-    if (!isPlaying || !isActive) return;
+    if (hasMedia || !isPlaying || !isActive) return;
     const id = setInterval(() => {
       setPosition((current) => Math.min(duration, current + TICK_MS / 1000));
     }, TICK_MS);
     return () => clearInterval(id);
-  }, [isPlaying, isActive, duration]);
+  }, [hasMedia, isPlaying, isActive, duration]);
+
+  // Con video real, el estado manda sobre el elemento. El silencio va primero:
+  // los navegadores sólo permiten arrancar solo a un video silenciado.
+  useEffect(() => {
+    if (mediaRef.current) mediaRef.current.muted = isMuted;
+  }, [isMuted]);
+
+  useEffect(() => {
+    const media = mediaRef.current;
+    if (!media) return;
+    if (isPlaying && isActive) {
+      // El navegador puede bloquear la reproducción automática.
+      media.play().catch(() => setIsPlaying(false));
+    } else {
+      media.pause();
+    }
+  }, [isPlaying, isActive]);
 
   useEffect(() => {
     if (hasEnded) setIsPlaying(false);
@@ -85,9 +111,14 @@ export function CapsulePlayer({
     if (isPlaying && wholeSecond > 0) recordProgress(userId, capsule.id, wholeSecond);
   }, [isPlaying, wholeSecond, userId, capsule.id]);
 
+  function seek(seconds: number) {
+    setPosition(seconds);
+    if (mediaRef.current) mediaRef.current.currentTime = seconds;
+  }
+
   function togglePlay() {
     if (hasEnded) {
-      setPosition(0);
+      seek(0);
       setIsPlaying(true);
       return;
     }
@@ -102,7 +133,26 @@ export function CapsulePlayer({
 
   return (
     <div className={cn("relative isolate h-full w-full overflow-hidden bg-slate-950 text-white", className)}>
-      <CapsuleArt capsule={capsule} isAnimated={isPlaying} />
+      <CapsuleArt capsule={capsule} isAnimated={isPlaying && !hasMedia} />
+      {hasMedia && (
+        <video
+          ref={mediaRef}
+          src={capsule.videoRef}
+          poster={capsule.posterRef}
+          muted
+          playsInline
+          preload={isActive ? "auto" : "metadata"}
+          aria-hidden
+          className="absolute inset-0 size-full object-cover"
+          onLoadedMetadata={(event) => {
+            const media = event.currentTarget;
+            setMediaDuration(media.duration);
+            if (resumeAt > 0 && resumeAt < media.duration) media.currentTime = resumeAt;
+          }}
+          onTimeUpdate={(event) => setPosition(event.currentTarget.currentTime)}
+          onEnded={(event) => setPosition(event.currentTarget.duration)}
+        />
+      )}
 
       {/* Toda la superficie pausa o reanuda, como en cualquier app de video corto. */}
       <button
@@ -169,7 +219,7 @@ export function CapsulePlayer({
             max={duration}
             step={1}
             value={Math.floor(position)}
-            onChange={(event) => setPosition(Number(event.target.value))}
+            onChange={(event) => seek(Number(event.target.value))}
             aria-label="Posición de reproducción"
             aria-valuetext={`${formatDuration(position)} de ${formatDuration(duration)}`}
             className="h-4 w-full cursor-pointer appearance-none bg-transparent outline-none [&::-moz-range-thumb]:size-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-white [&::-moz-range-track]:h-1 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-white/30 [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:size-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white focus-visible:[&::-webkit-slider-thumb]:ring-4 focus-visible:[&::-webkit-slider-thumb]:ring-white/40"
@@ -191,12 +241,14 @@ export function CapsulePlayer({
             <span className="px-1 text-xs tabular-nums text-white/85">
               {formatDuration(position)} / {formatDuration(duration)}
             </span>
-            <span className="ml-auto hidden text-[11px] text-white/60 sm:inline">Video demostrativo</span>
+            {!hasMedia && <span className="ml-auto hidden text-[11px] text-white/60 sm:inline">Video demostrativo</span>}
             <PlayerButton
-              label={isMuted ? "Activar sonido (el video demostrativo no tiene audio)" : "Silenciar"}
+              label={
+                isMuted ? (hasMedia ? "Activar sonido" : "Activar sonido (el video demostrativo no tiene audio)") : "Silenciar"
+              }
               isPressed={!isMuted}
               onClick={() => setIsMuted((current) => !current)}
-              className="ml-auto sm:ml-0"
+              className={cn("ml-auto", !hasMedia && "sm:ml-0")}
             >
               {isMuted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
             </PlayerButton>
@@ -247,11 +299,14 @@ function PlayerButton({
 /** Botón redondo con etiqueta, para la columna de acciones sobre el video. */
 export function RailButton({
   label,
+  ariaLabel,
   isPressed,
   onClick,
   children,
 }: {
   label: string;
+  /** Nombre accesible cuando la etiqueta visible es sólo un número. */
+  ariaLabel?: string;
   isPressed?: boolean;
   onClick: () => void;
   children: React.ReactNode;
@@ -261,6 +316,7 @@ export function RailButton({
       type="button"
       onClick={onClick}
       aria-pressed={isPressed}
+      aria-label={ariaLabel}
       className="group flex flex-col items-center gap-1 text-[11px] font-medium text-white outline-none"
     >
       <span className="grid size-11 place-items-center rounded-full bg-black/45 backdrop-blur-sm transition-colors group-hover:bg-black/65 group-focus-visible:ring-[3px] group-focus-visible:ring-white/70">

@@ -44,11 +44,21 @@ export function CapsuleArt({
   isAnimated = false,
   className,
 }: {
-  capsule: Pick<Capsule, "thumb" | "category">;
+  capsule: Pick<Capsule, "thumb" | "category" | "posterRef">;
   isAnimated?: boolean;
   className?: string;
 }) {
   const Icon = CATEGORY_ICON[capsule.category];
+
+  if (capsule.posterRef) {
+    return (
+      <div className={cn("absolute inset-0 overflow-hidden bg-slate-950", className)} aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element -- portada local y fija; next/image no aporta aquí */}
+        <img src={capsule.posterRef} alt="" className="size-full object-cover" loading="lazy" decoding="async" />
+      </div>
+    );
+  }
+
   return (
     <div className={cn("absolute inset-0 overflow-hidden bg-gradient-to-br", thumbClass(capsule.thumb), className)} aria-hidden>
       <div

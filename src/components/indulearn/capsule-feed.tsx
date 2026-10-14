@@ -2,25 +2,39 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Bookmark, BookmarkCheck, ChevronDown, ChevronUp, CircleCheck, Link2, SearchX } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkCheck,
+  ChevronDown,
+  ChevronUp,
+  CircleCheck,
+  Heart,
+  Link2,
+  MessageCircle,
+  SearchX,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { formatDuration } from "@/lib/indulearn/format";
+import { formatDuration, formatNumber } from "@/lib/indulearn/format";
 import {
   brandsForUser,
   capsuleState,
   capsulesForUser,
+  commentsOf,
+  isLiked,
   isSaved,
+  likesOf,
   percentOf,
   progressOf,
 } from "@/lib/indulearn/selectors";
-import { markCompleted, toast, toggleSaved, useAppState } from "@/lib/indulearn/store";
+import { markCompleted, toast, toggleLike, toggleSaved, useAppState } from "@/lib/indulearn/store";
 import type { Brand, Capsule, User } from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
 
 import { CapsuleThumb, capsuleHref } from "./capsule-card";
+import { CommentForm, CommentList, CommentsPanel } from "./capsule-comments";
 import { CapsulePlayer, RailButton } from "./capsule-player";
-import { BrandBadge, EmptyState, FilterChips, ProgressBar, StateBadge } from "./ui";
+import { BrandBadge, EmptyState, FilterChips, Modal, ProgressBar, StateBadge } from "./ui";
 
 /**
  * Feed vertical de cápsulas.
@@ -30,13 +44,18 @@ import { BrandBadge, EmptyState, FilterChips, ProgressBar, StateBadge } from "./
  * con formato 9:16 y la información pasa a un panel lateral. Un solo
  * mecanismo para los dos tamaños.
  *
- * Deliberadamente sin "me gusta" ni comentarios: es consumo de conocimiento,
- * no una red social.
+ * Junto al video van las flechas de navegación, "me gusta", comentarios y
+ * guardar. En pantallas anchas los comentarios se abren en una tarjeta pegada
+ * a la derecha del video (al estilo de YouTube), sin ocultar el panel de
+ * información; en móvil y escritorio angosto, en una hoja modal.
  */
 export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCapsuleId?: string }) {
   const state = useAppState();
   const [brandFilter, setBrandFilter] = useState("all");
   const [activeId, setActiveId] = useState<string | null>(null);
+  // Pantallas anchas: tarjeta entre el video y el panel de información. Móvil y
+  // escritorio angosto, donde no cabe: hoja modal.
+  const [commentsView, setCommentsView] = useState<"panel" | "sheet" | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const didInitialScroll = useRef(false);
 
@@ -106,6 +125,8 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeIndex, capsules.length, scrollToIndex]);
 
+  const closeComments = useCallback(() => setCommentsView(null), []);
+
   function changeBrand(next: string) {
     setBrandFilter(next);
     scrollerRef.current?.scrollTo({ top: 0 });
@@ -115,6 +136,18 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
     const wasSaved = isSaved(state, user.id, capsule.id);
     toggleSaved(user.id, capsule.id);
     toast(wasSaved ? "Cápsula quitada de guardadas" : "Cápsula guardada", "info");
+  }
+
+  function toggleComments(capsule: Capsule) {
+    if (!window.matchMedia("(min-width: 90rem)").matches) {
+      setCommentsView("sheet");
+      return;
+    }
+    setCommentsView((view) => (view === "panel" && active?.id === capsule.id ? null : "panel"));
+  }
+
+  function like(capsule: Capsule) {
+    toggleLike(user.id, capsule.id);
   }
 
   async function share(capsule: Capsule) {
@@ -167,75 +200,150 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
             ref={scrollerRef}
             className="il-no-scrollbar h-full snap-y snap-mandatory overflow-y-auto overscroll-contain"
           >
-            {capsules.map((capsule) => {
+            {capsules.map((capsule, index) => {
               const progress = progressOf(state, user.id, capsule.id);
               const saved = isSaved(state, user.id, capsule.id);
+              const liked = isLiked(state, user.id, capsule.id);
+              const likeCount = likesOf(state, capsule.id);
+              const commentCount = commentsOf(state, capsule.id).length;
               return (
                 <section
                   key={capsule.id}
                   data-capsule-id={capsule.id}
                   aria-label={capsule.title}
                   className={cn(
-                    "flex h-full snap-start snap-always items-center justify-center lg:px-6 lg:pb-6",
+                    "@container flex h-full snap-start snap-always items-center justify-center lg:px-6 lg:pb-6",
                     brands.length > 1 ? "lg:pt-16" : "lg:pt-6",
                   )}
                 >
-                  <div className="h-full w-full lg:aspect-[9/16] lg:w-auto lg:overflow-hidden lg:rounded-2xl lg:shadow-xl">
-                    <CapsulePlayer
-                      capsule={capsule}
-                      userId={user.id}
-                      brands={brandsOf(capsule, state.brands)}
-                      settings={state.settings}
-                      isActive={active?.id === capsule.id}
-                      resumeAt={progress && !progress.completedAt ? progress.seconds : 0}
-                      isCompleted={Boolean(progress?.completedAt)}
-                      hasOverlayInfo
-                      hasTopInset={brands.length > 1}
-                      rail={
-                        <div className="flex flex-col items-center gap-4 lg:hidden">
-                          <RailButton label={saved ? "Guardada" : "Guardar"} isPressed={saved} onClick={() => save(capsule)}>
-                            {saved ? <BookmarkCheck className="size-5" /> : <Bookmark className="size-5" />}
-                          </RailButton>
-                          {state.settings.allowShare && (
-                            <RailButton label="Compartir" onClick={() => share(capsule)}>
-                              <Link2 className="size-5" />
+                  {/* Video, acciones y comentarios forman un bloque centrado. Con
+                      los comentarios abiertos, la altura se limita según el ancho
+                      disponible para que el video conserve el 9:16 y no se aplaste. */}
+                  <div
+                    className={cn(
+                      "flex h-full w-full items-end justify-center lg:w-auto",
+                      commentsView === "panel" &&
+                        "min-[90rem]:max-h-[calc((100cqw-400px)*16/9)] 2xl:max-h-[calc((100cqw-464px)*16/9)]",
+                    )}
+                  >
+                    <div className="h-full w-full lg:aspect-[9/16] lg:w-auto lg:overflow-hidden lg:rounded-2xl lg:shadow-xl">
+                      <CapsulePlayer
+                        capsule={capsule}
+                        userId={user.id}
+                        brands={brandsOf(capsule, state.brands)}
+                        settings={state.settings}
+                        isActive={active?.id === capsule.id}
+                        resumeAt={progress && !progress.completedAt ? progress.seconds : 0}
+                        isCompleted={Boolean(progress?.completedAt)}
+                        hasOverlayInfo
+                        hasTopInset={brands.length > 1}
+                        rail={
+                          <div className="flex flex-col items-center gap-4 lg:hidden">
+                            <RailButton
+                              label={formatNumber(likeCount)}
+                              isPressed={liked}
+                              onClick={() => like(capsule)}
+                              ariaLabel={liked ? "Quitar me gusta" : "Me gusta"}
+                            >
+                              <Heart className={cn("size-5", liked && "fill-current text-red-500")} />
                             </RailButton>
-                          )}
-                          {!progress?.completedAt && (
-                            <RailButton label="Completar" onClick={() => complete(capsule)}>
-                              <CircleCheck className="size-5" />
+                            <RailButton
+                              label={formatNumber(commentCount)}
+                              onClick={() => setCommentsView("sheet")}
+                              ariaLabel={`Ver ${commentCount} comentarios`}
+                            >
+                              <MessageCircle className="size-5" />
                             </RailButton>
-                          )}
+                            <RailButton
+                              label={saved ? "Guardada" : "Guardar"}
+                              isPressed={saved}
+                              onClick={() => save(capsule)}
+                            >
+                              {saved ? <BookmarkCheck className="size-5" /> : <Bookmark className="size-5" />}
+                            </RailButton>
+                            {state.settings.allowShare && (
+                              <RailButton label="Compartir" onClick={() => share(capsule)}>
+                                <Link2 className="size-5" />
+                              </RailButton>
+                            )}
+                            {!progress?.completedAt && (
+                              <RailButton label="Completar" onClick={() => complete(capsule)}>
+                                <CircleCheck className="size-5" />
+                              </RailButton>
+                            )}
+                          </div>
+                        }
+                      />
+                    </div>
+                    {/* Columna junto al video: flechas centradas respecto del video
+                        y, abajo, las acciones. */}
+                    <div className="relative hidden h-full flex-col items-center justify-end pl-4 lg:flex">
+                      {capsules.length > 1 && (
+                        <div className="absolute left-1/2 top-1/2 flex -translate-y-1/2 translate-x-[calc(-50%+8px)] flex-col gap-3">
+                          <button
+                            type="button"
+                            aria-label="Cápsula anterior"
+                            disabled={index === 0}
+                            onClick={() => scrollToIndex(index - 1)}
+                            className={cn(SIDE_CIRCLE, "hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50")}
+                          >
+                            <ChevronUp className="size-5" aria-hidden />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Cápsula siguiente"
+                            disabled={index === capsules.length - 1}
+                            onClick={() => scrollToIndex(index + 1)}
+                            className={cn(SIDE_CIRCLE, "hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50")}
+                          >
+                            <ChevronDown className="size-5" aria-hidden />
+                          </button>
                         </div>
-                      }
-                    />
+                      )}
+                      <div className="flex flex-col items-center gap-5 pb-4">
+                        <SideAction
+                          label={formatNumber(likeCount)}
+                          ariaLabel={liked ? "Quitar me gusta" : "Me gusta"}
+                          isPressed={liked}
+                          onClick={() => like(capsule)}
+                        >
+                          <Heart className={cn("size-5", liked && "fill-current text-red-500")} />
+                        </SideAction>
+                        <SideAction
+                          label={formatNumber(commentCount)}
+                          ariaLabel={`Comentarios (${commentCount})`}
+                          isPressed={commentsView === "panel" && active?.id === capsule.id}
+                          onClick={() => toggleComments(capsule)}
+                        >
+                          <MessageCircle className="size-5" />
+                        </SideAction>
+                        <SideAction
+                          label={saved ? "Guardada" : "Guardar"}
+                          isPressed={saved}
+                          onClick={() => save(capsule)}
+                        >
+                          {saved ? <BookmarkCheck className="size-5" /> : <Bookmark className="size-5" />}
+                        </SideAction>
+                      </div>
+                    </div>
+                    {/* Con los comentarios abiertos, todas las cápsulas reservan el
+                      hueco: así el video no salta de lugar al pasar a la siguiente. */}
+                    {commentsView === "panel" && (
+                      <div className="hidden h-full w-[336px] shrink-0 pl-4 min-[90rem]:block 2xl:w-[400px]">
+                        {active?.id === capsule.id && (
+                          <CommentsPanel
+                            capsuleId={capsule.id}
+                            user={user}
+                            onClose={closeComments}
+                            className="animate-il-panel-in h-full"
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
                 </section>
               );
             })}
-          </div>
-        )}
-
-        {capsules.length > 1 && (
-          <div className="absolute right-6 top-1/2 z-40 hidden -translate-y-1/2 flex-col gap-2 lg:flex">
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="Cápsula anterior"
-              disabled={activeIndex === 0}
-              onClick={() => scrollToIndex(activeIndex - 1)}
-            >
-              <ChevronUp />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="Cápsula siguiente"
-              disabled={activeIndex === capsules.length - 1}
-              onClick={() => scrollToIndex(activeIndex + 1)}
-            >
-              <ChevronDown />
-            </Button>
           </div>
         )}
 
@@ -245,7 +353,7 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
         </p>
       </div>
 
-      <aside className="hidden w-[380px] shrink-0 flex-col overflow-y-auto border-l bg-card lg:flex">
+      <aside className="hidden w-[320px] shrink-0 flex-col overflow-y-auto border-l bg-card lg:flex 2xl:w-[380px]">
         {isBlocked && (
           <p className="border-b bg-warn-surface px-6 py-3 text-sm text-foreground">
             El enlace apunta a una cápsula de una marca para la que no tienes autorización.
@@ -270,7 +378,12 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
               {renderProgress(active)}
 
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" onClick={() => save(active)} aria-pressed={isSaved(state, user.id, active.id)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => save(active)}
+                  aria-pressed={isSaved(state, user.id, active.id)}
+                >
                   {isSaved(state, user.id, active.id) ? <BookmarkCheck /> : <Bookmark />}
                   {isSaved(state, user.id, active.id) ? "Guardada" : "Guardar"}
                 </Button>
@@ -299,7 +412,9 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                     >
                       <CapsuleThumb capsule={capsule} className="w-14 shrink-0" />
                       <span className="min-w-0 flex-1">
-                        <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">{capsule.title}</span>
+                        <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
+                          {capsule.title}
+                        </span>
                         <span className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                           {brandsOf(capsule, state.brands)
                             .map((brand) => brand.name)
@@ -323,6 +438,17 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
           </div>
         )}
       </aside>
+
+      {active && (
+        <Modal
+          isOpen={commentsView === "sheet"}
+          onClose={closeComments}
+          title={`Comentarios (${commentsOf(state, active.id).length})`}
+          footer={<CommentForm capsuleId={active.id} user={user} />}
+        >
+          <CommentList capsuleId={active.id} user={user} />
+        </Modal>
+      )}
     </div>
   );
 
@@ -350,6 +476,46 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
       </div>
     );
   }
+}
+
+/** Círculo común a las flechas y las acciones junto al video en escritorio. */
+const SIDE_CIRCLE =
+  "grid size-12 place-items-center rounded-full border bg-card text-foreground shadow-xs outline-none transition-colors disabled:pointer-events-none disabled:opacity-40";
+
+/** Acción junto al video en escritorio: botón redondo con su contador debajo. */
+function SideAction({
+  label,
+  ariaLabel,
+  isPressed,
+  onClick,
+  children,
+}: {
+  label: string;
+  ariaLabel?: string;
+  isPressed?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={isPressed}
+      aria-label={ariaLabel}
+      className="group flex flex-col items-center gap-1.5 text-xs font-medium tabular-nums text-muted-foreground outline-none"
+    >
+      <span
+        className={cn(
+          SIDE_CIRCLE,
+          "group-hover:bg-accent group-focus-visible:ring-[3px] group-focus-visible:ring-ring/50",
+          isPressed && "bg-accent",
+        )}
+      >
+        {children}
+      </span>
+      <span aria-hidden={ariaLabel ? true : undefined}>{label}</span>
+    </button>
+  );
 }
 
 function brandsOf(capsule: Capsule, brands: Brand[]): Brand[] {

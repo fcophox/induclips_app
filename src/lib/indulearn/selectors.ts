@@ -1,4 +1,4 @@
-import type { AppState, Brand, Capsule, CapsuleState, Progress, User } from "./types";
+import type { AppState, Brand, Capsule, CapsuleState, Comment, Progress, User } from "./types";
 
 /**
  * Lógica de lectura del prototipo: permisos por marca y cálculo de progreso.
@@ -100,4 +100,31 @@ export function brandById(state: AppState, id: string): Brand | undefined {
 
 export function collaborators(state: AppState): User[] {
   return state.users.filter((user) => user.role === "collaborator");
+}
+
+export function likesOf(state: AppState, capsuleId: string): number {
+  return state.likes[capsuleId]?.length ?? 0;
+}
+
+export function isLiked(state: AppState, userId: string, capsuleId: string): boolean {
+  return state.likes[capsuleId]?.includes(userId) ?? false;
+}
+
+/** Todos los comentarios de una cápsula, respuestas incluidas (el total que se muestra). */
+export function commentsOf(state: AppState, capsuleId: string): Comment[] {
+  return state.comments.filter((comment) => comment.capsuleId === capsuleId);
+}
+
+/** Hilos principales, del más reciente al más antiguo, como en YouTube. */
+export function threadsOf(state: AppState, capsuleId: string): Comment[] {
+  return commentsOf(state, capsuleId)
+    .filter((comment) => comment.parentId === null)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/** Respuestas a un comentario, en orden de conversación. */
+export function repliesOf(state: AppState, commentId: string): Comment[] {
+  return state.comments
+    .filter((comment) => comment.parentId === commentId)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }

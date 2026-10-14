@@ -12,7 +12,7 @@ import { newId, toast, upsertCapsule } from "@/lib/indulearn/store";
 import { CATEGORIES, type Brand, type Capsule, type CapsuleStatus, type Category } from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
 
-const MIN_DURATION = 15;
+const MIN_DURATION = 5;
 const MAX_DURATION = 600;
 
 type Errors = Partial<Record<"title" | "brands" | "duration", string>>;
@@ -58,6 +58,8 @@ export function CapsuleForm({
       title: cleanTitle,
       description: cleanDescription,
       videoRef: videoRef.trim(),
+      // La portada acompaña al video: si se cambia el video, deja de servir.
+      posterRef: videoRef.trim() === capsule?.videoRef ? capsule.posterRef : undefined,
       durationSec: seconds,
       thumb,
       category,
@@ -108,7 +110,7 @@ export function CapsuleForm({
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Video o referencia de video" hint="En el prototipo se guarda como dato; no se sube ningún archivo.">
+          <Field label="Video o referencia de video" hint="Una ruta (/indulearn/videos/…) o URL https se reproduce; otro texto queda como dato.">
             {(id) => (
               <Input
                 id={id}

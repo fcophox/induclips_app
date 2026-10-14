@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 
 import { STATE_VERSION, createSeedState } from "./seed";
-import type { AppState, Capsule, Progress, Settings, User } from "./types";
+import type { AppState, Capsule, Comment, Progress, Settings, User } from "./types";
 
 /**
  * Estado del prototipo: un único objeto en memoria, espejado en localStorage
@@ -161,6 +161,44 @@ export function toggleSaved(userId: string, capsuleId: string) {
       : [...current, capsuleId];
     return { ...s, saved: { ...s.saved, [userId]: next } };
   });
+}
+
+// ── Interacción ───────────────────────────────────────────────────────────
+
+export function toggleLike(userId: string, capsuleId: string) {
+  update((s) => {
+    const current = s.likes[capsuleId] ?? [];
+    const next = current.includes(userId) ? current.filter((id) => id !== userId) : [...current, userId];
+    return { ...s, likes: { ...s.likes, [capsuleId]: next } };
+  });
+}
+
+export function addComment(userId: string, capsuleId: string, text: string, parentId: string | null = null) {
+  const comment: Comment = {
+    id: newId("cm"),
+    capsuleId,
+    userId,
+    parentId,
+    text: text.trim(),
+    createdAt: nowIso(),
+    likedBy: [],
+  };
+  if (!comment.text) return;
+  update((s) => ({ ...s, comments: [...s.comments, comment] }));
+}
+
+export function toggleCommentLike(userId: string, commentId: string) {
+  update((s) => ({
+    ...s,
+    comments: s.comments.map((c) =>
+      c.id === commentId
+        ? {
+            ...c,
+            likedBy: c.likedBy.includes(userId) ? c.likedBy.filter((id) => id !== userId) : [...c.likedBy, userId],
+          }
+        : c,
+    ),
+  }));
 }
 
 // ── Administración ────────────────────────────────────────────────────────
