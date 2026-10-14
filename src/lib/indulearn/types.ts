@@ -1,5 +1,5 @@
 /**
- * Modelo de datos del prototipo InduLearn.
+ * Modelo de datos del prototipo Inducampus online.
  *
  * Son los mismos conceptos que tendrá el MVP (marcas, cápsulas, usuarios,
  * progreso), pero viven en memoria y en localStorage. Cada tipo está pensado
@@ -89,7 +89,7 @@ export type Progress = {
 
 /**
  * Comentario en una cápsula. `userId: null` es un mensaje de la plataforma
- * (avisos del equipo InduLearn); si no, el rol del autor decide si se muestra
+ * (avisos del equipo de Inducampus online); si no, el rol del autor decide si se muestra
  * como alumno o como docente.
  */
 export type Comment = {

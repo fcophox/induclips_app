@@ -1,7 +1,7 @@
 import type { AppState, Brand, Capsule, Comment, Progress, SubtitleCue, User } from "./types";
 
 /** Subir este número descarta el estado guardado en el navegador. */
-export const STATE_VERSION = 4;
+export const STATE_VERSION = 5;
 
 export const DEALERS = [
   "Sucursal Santiago Centro",
@@ -219,7 +219,7 @@ const USERS: User[] = [
   {
     id: "u-carolina",
     name: "Carolina Fuentes",
-    email: "carolina.fuentes@indulearn.demo",
+    email: "carolina.fuentes@inducampus.demo",
     role: "admin",
     dealer: "Casa matriz",
     brandIds: ["kia", "hyundai", "landking", "sinotruk"],
@@ -229,7 +229,7 @@ const USERS: User[] = [
   {
     id: "u-matias",
     name: "Matías Rojas",
-    email: "matias.rojas@indulearn.demo",
+    email: "matias.rojas@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Santiago Centro",
     brandIds: ["kia"],
@@ -239,7 +239,7 @@ const USERS: User[] = [
   {
     id: "u-diego",
     name: "Diego Paredes",
-    email: "diego.paredes@indulearn.demo",
+    email: "diego.paredes@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Antofagasta",
     brandIds: ["landking", "sinotruk"],
@@ -249,7 +249,7 @@ const USERS: User[] = [
   {
     id: "u-fernanda",
     name: "Fernanda Soto",
-    email: "fernanda.soto@indulearn.demo",
+    email: "fernanda.soto@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Las Condes",
     brandIds: ["hyundai"],
@@ -259,7 +259,7 @@ const USERS: User[] = [
   {
     id: "u-javier",
     name: "Javier Muñoz",
-    email: "javier.munoz@indulearn.demo",
+    email: "javier.munoz@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Viña del Mar",
     brandIds: ["kia", "hyundai"],
@@ -269,7 +269,7 @@ const USERS: User[] = [
   {
     id: "u-valentina",
     name: "Valentina Castro",
-    email: "valentina.castro@indulearn.demo",
+    email: "valentina.castro@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Concepción",
     brandIds: ["landking", "sinotruk"],
@@ -279,7 +279,7 @@ const USERS: User[] = [
   {
     id: "u-ignacio",
     name: "Ignacio Herrera",
-    email: "ignacio.herrera@indulearn.demo",
+    email: "ignacio.herrera@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Santiago Centro",
     brandIds: ["kia"],
@@ -289,7 +289,7 @@ const USERS: User[] = [
   {
     id: "u-camila",
     name: "Camila Vargas",
-    email: "camila.vargas@indulearn.demo",
+    email: "camila.vargas@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Las Condes",
     brandIds: ["hyundai"],
@@ -299,7 +299,7 @@ const USERS: User[] = [
   {
     id: "u-sebastian",
     name: "Sebastián Araya",
-    email: "sebastian.araya@indulearn.demo",
+    email: "sebastian.araya@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Antofagasta",
     brandIds: ["sinotruk"],
@@ -309,7 +309,7 @@ const USERS: User[] = [
   {
     id: "u-paula",
     name: "Paula Espinoza",
-    email: "paula.espinoza@indulearn.demo",
+    email: "paula.espinoza@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Viña del Mar",
     brandIds: ["kia", "landking"],
@@ -319,7 +319,7 @@ const USERS: User[] = [
   {
     id: "u-tomas",
     name: "Tomás Reyes",
-    email: "tomas.reyes@indulearn.demo",
+    email: "tomas.reyes@inducampus.demo",
     role: "collaborator",
     dealer: "Sucursal Concepción",
     brandIds: ["hyundai", "landking", "sinotruk"],

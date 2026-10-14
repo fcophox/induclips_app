@@ -50,7 +50,7 @@ Existen dos espacios a propósito. Con uno solo, un fallo de aislamiento es
 invisible durante el desarrollo; con dos salta a la vista en cuanto aparece en
 una lista algo que pertenece al otro.
 
-## Prototipo InduLearn
+## Prototipo Inducampus online
 
 En `/indulearn` vive un prototipo navegable de una plataforma de microlearning
 multimarca. Está **aislado** del resto: no usa la sesión de Supabase ni la

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, CheckCircle2, CircleAlert, GraduationCap, Info, X } from "lucide-react";
+import { Check, CheckCircle2, CircleAlert, Info, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { initialsOf } from "@/lib/indulearn/format";
@@ -10,24 +10,26 @@ import { dismissToast, useToasts } from "@/lib/indulearn/store";
 import type { Brand, CapsuleState } from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
 
+import { BrandMark, BrandWordmark } from "./brand-logo";
+
 /**
- * Piezas de interfaz propias de InduLearn. Todas se pintan con los tokens del
+ * Piezas de interfaz propias de Inducampus online. Todas se pintan con los tokens del
  * sistema de diseño (tokens.yml), así que siguen el tema claro/oscuro sin
  * código adicional.
  */
 
 // ── Identidad ─────────────────────────────────────────────────────────────
 
+/** Logotipo completo; `compact` muestra sólo el isotipo (el del favicon). */
 export function Logo({ className, compact = false }: { className?: string; compact?: boolean }) {
   return (
-    <span className={cn("flex items-center gap-2.5 font-semibold tracking-tight text-foreground", className)}>
-      <span className="grid size-8 shrink-0 place-items-center rounded-[10px] bg-primary text-primary-foreground">
-        <GraduationCap className="size-[18px]" aria-hidden />
-      </span>
-      {!compact && (
-        <span className="text-[17px]">
-          Indu<span className="text-primary">Learn</span>
+    <span className={cn("flex items-center", className)}>
+      {compact ? (
+        <span className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-[10px]">
+          <BrandMark className="size-full" />
         </span>
+      ) : (
+        <BrandWordmark className="h-8" />
       )}
     </span>
   );

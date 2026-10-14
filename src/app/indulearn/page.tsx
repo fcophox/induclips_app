@@ -191,7 +191,7 @@ export default function LoginPage() {
           </ul>
         </div>
 
-        <p className="relative text-xs text-primary-foreground/70">InduLearn · Red comercial Indumotora</p>
+        <p className="relative text-xs text-primary-foreground/70">Inducampus online · Red comercial Indumotora</p>
       </aside>
     </div>
   );

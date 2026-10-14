@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { IndulearnProvider } from "@/components/indulearn/provider";
 
 /**
- * InduLearn — prototipo navegable.
+ * Inducampus online — prototipo navegable.
  *
  * Vive aislado del resto de la aplicación: no usa la sesión real ni la base
  * de datos. Todo lo que muestra son datos de ejemplo guardados en el
@@ -11,7 +11,7 @@ import { IndulearnProvider } from "@/components/indulearn/provider";
  */
 export const metadata: Metadata = {
   // `absolute` evita que la plantilla del layout raíz añada el nombre del starter.
-  title: { absolute: "InduLearn", template: "%s · InduLearn" },
+  title: { absolute: "Inducampus online", template: "%s · Inducampus online" },
   description: "Cápsulas de conocimiento para la red comercial. Prototipo demostrativo.",
 };
 

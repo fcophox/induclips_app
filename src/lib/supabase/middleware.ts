@@ -17,14 +17,14 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
  *    refrescado y provoca cierres de sesión aleatorios al expirar el access token.
  */
 export async function updateSession(request: NextRequest) {
-  // Prototipo InduLearn: datos mock y sesión simulada en el navegador. Sale
+  // Prototipo Inducampus online: datos mock y sesión simulada en el navegador. Sale
   // antes de crear el cliente para no depender de Supabase (ni de sus
   // variables de entorno) y poder desplegar la demo sin backend.
   if (request.nextUrl.pathname.startsWith("/indulearn")) {
     return NextResponse.next({ request });
   }
 
-  // Mientras la demo sea lo que se publica, la raíz abre InduLearn. Es
+  // Mientras la demo sea lo que se publica, la raíz abre Inducampus online. Es
   // temporal (307): `/login` y el resto de la plantilla siguen disponibles.
   if (request.nextUrl.pathname === "/") {
     const demo = request.nextUrl.clone();

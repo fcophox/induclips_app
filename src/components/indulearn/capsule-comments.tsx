@@ -169,7 +169,7 @@ function CommentItem({
   const state = useAppState();
   const author = state.users.find((u) => u.id === comment.userId);
   const isPlatform = comment.userId === null;
-  const name = isPlatform ? "InduLearn" : (author?.name ?? "Usuario");
+  const name = isPlatform ? "Inducampus online" : (author?.name ?? "Usuario");
   const liked = comment.likedBy.includes(user.id);
   const likeCount = comment.likedBy.length;
 
