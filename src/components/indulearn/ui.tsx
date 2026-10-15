@@ -6,6 +6,7 @@ import { Check, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Info, X } 
 import type { LucideIcon } from "lucide-react";
 
 import { initialsOf } from "@/lib/indulearn/format";
+import { hexToRgb, isValidHex, readableForeground } from "@/lib/theme/color";
 import { dismissToast, useToasts } from "@/lib/indulearn/store";
 import type { Brand, CapsuleState } from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
@@ -61,9 +62,46 @@ export function BrandBadge({ brand, className }: { brand: Brand; className?: str
         className,
       )}
     >
-      <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: brand.colorVar }} aria-hidden />
+      {brand.logoRef ? (
+        <span className="grid size-4 shrink-0 place-items-center overflow-hidden rounded-[4px] bg-white ring-1 ring-border" aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element -- logo subido en el navegador; next/image no aporta aquí */}
+          <img src={brand.logoRef} alt="" className="size-full object-contain" />
+        </span>
+      ) : (
+        <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: brand.colorVar }} aria-hidden />
+      )}
       {brand.name}
       {brand.isDemo && <span className="text-muted-foreground">· demo</span>}
+    </span>
+  );
+}
+
+/** Texto legible sobre el color de la marca; las variables del tema son tonos medios. */
+function brandInk(color: string): string {
+  return isValidHex(color) ? readableForeground(hexToRgb(color)) : "#0a0a0a";
+}
+
+/**
+ * Identidad visual de una marca: su logo si lo tiene; si no, la sigla sobre su
+ * color. El logo va sobre blanco porque casi todos están pensados para fondo
+ * claro, también en modo oscuro.
+ */
+export function BrandAvatar({ brand, className }: { brand: Pick<Brand, "short" | "colorVar" | "logoRef" | "name">; className?: string }) {
+  if (brand.logoRef) {
+    return (
+      <span className={cn("grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl border bg-white p-1.5", className)}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- logo subido en el navegador; next/image no aporta aquí */}
+        <img src={brand.logoRef} alt={`Logo de ${brand.name}`} className="size-full object-contain" />
+      </span>
+    );
+  }
+  return (
+    <span
+      className={cn("grid size-11 shrink-0 place-items-center rounded-xl text-sm font-bold", className)}
+      style={{ backgroundColor: brand.colorVar, color: brandInk(brand.colorVar) }}
+      aria-hidden
+    >
+      {brand.short}
     </span>
   );
 }

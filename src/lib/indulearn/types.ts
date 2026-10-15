@@ -13,8 +13,13 @@ export type Brand = {
   name: string;
   /** Sigla de dos letras para la etiqueta visual. */
   short: string;
-  /** Variable CSS de la serie (`--chart-N`): identifica la marca en chips y gráficos. */
+  /**
+   * Color de la marca en chips y gráficos: una variable del tema
+   * (`var(--chart-N)`) o un color propio en hexadecimal (`#RRGGBB`).
+   */
   colorVar: string;
+  /** Logo subido por el administrador (`data:`), sin fondo idealmente. */
+  logoRef?: string;
   status: BrandStatus;
   /** Marca ficticia, incluida sólo para ilustrar el crecimiento del sistema. */
   isDemo: boolean;

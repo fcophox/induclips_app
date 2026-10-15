@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 
 import { STATE_VERSION, createSeedState } from "./seed";
-import type { AppState, Capsule, Comment, Progress, Settings, User } from "./types";
+import type { AppState, Brand, Capsule, Comment, Progress, Settings, User } from "./types";
 
 /**
  * Estado del prototipo: un único objeto en memoria, espejado en localStorage
@@ -217,6 +217,34 @@ export function upsertCapsule(capsule: Capsule) {
         : [capsule, ...s.capsules],
     };
   });
+}
+
+export function upsertBrand(brand: Brand) {
+  update((s) => {
+    const exists = s.brands.some((b) => b.id === brand.id);
+    return {
+      ...s,
+      brands: exists ? s.brands.map((b) => (b.id === brand.id ? brand : b)) : [...s.brands, brand],
+    };
+  });
+}
+
+/**
+ * Borra una marca y la quita de cápsulas y colaboradores. Una cápsula que se
+ * queda sin marcas deja de verla cualquier colaborador; se conserva para que
+ * el administrador le asigne otra.
+ */
+export function deleteBrand(brandId: string) {
+  update((s) => ({
+    ...s,
+    brands: s.brands.filter((b) => b.id !== brandId),
+    capsules: s.capsules.map((c) =>
+      c.brandIds.includes(brandId) ? { ...c, brandIds: c.brandIds.filter((id) => id !== brandId) } : c,
+    ),
+    users: s.users.map((u) =>
+      u.brandIds.includes(brandId) ? { ...u, brandIds: u.brandIds.filter((id) => id !== brandId) } : u,
+    ),
+  }));
 }
 
 export function setCapsulePublished(capsuleId: string, published: boolean) {
