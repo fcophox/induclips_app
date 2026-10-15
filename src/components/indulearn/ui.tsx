@@ -285,15 +285,17 @@ export function Switch({
         aria-checked={checked}
         aria-labelledby={id}
         onClick={() => onChange(!checked)}
+        // Colores del tema, no blanco fijo: en oscuro el primario es casi blanco y
+        // la bolita blanca desaparecía sobre el riel encendido.
         className={cn(
           "relative mt-0.5 h-6 w-11 shrink-0 rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50",
-          checked ? "bg-primary" : "bg-input",
+          checked ? "bg-primary" : "bg-input dark:bg-muted-foreground/35",
         )}
       >
         <span
           className={cn(
-            "absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform",
-            checked && "translate-x-5",
+            "absolute left-0.5 top-0.5 size-5 rounded-full shadow-sm transition-[transform,background-color] motion-reduce:transition-none",
+            checked ? "translate-x-5 bg-primary-foreground" : "bg-background dark:bg-foreground",
           )}
         />
       </button>

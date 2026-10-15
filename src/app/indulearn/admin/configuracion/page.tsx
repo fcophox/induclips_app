@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { RotateCcw } from "lucide-react";
 
+import { GaugeSlider } from "@/components/indulearn/gauge-slider";
 import { Card, PageHeader, Switch } from "@/components/indulearn/ui";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -24,64 +25,61 @@ export default function SettingsAdminPage() {
     <div className="flex flex-col gap-6">
       <PageHeader title="Configuración" description="Reglas de reproducción y datos de la demostración." />
 
-      <Card className="divide-y">
-        <div className="p-5">
+      <Card className="overflow-hidden">
+        <div className="border-b p-5">
           <h2 className="text-sm font-semibold text-foreground">Reglas de reproducción</h2>
         </div>
 
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-4">
+        {/* Mitad y mitad: el umbral con su tacómetro, y los interruptores. */}
+        <div className="grid divide-y md:grid-cols-2 md:divide-x md:divide-y-0">
+          <div className="flex flex-col gap-5 p-5">
             <div className="min-w-0">
-              <label htmlFor="threshold" className="text-sm font-medium text-foreground">
+              <p id="threshold-label" className="text-sm font-medium text-foreground">
                 Umbral de finalización
-              </label>
-              <p className="mt-0.5 text-sm text-muted-foreground">
+              </p>
+              <p id="threshold-hint" className="mt-0.5 text-sm text-muted-foreground">
                 Porcentaje del video que hay que ver para que la cápsula cuente como completada.
               </p>
             </div>
-            <output htmlFor="threshold" className="shrink-0 text-lg font-semibold tabular-nums text-foreground">
-              {settings.completionThreshold} %
-            </output>
+            <GaugeSlider
+              value={settings.completionThreshold}
+              min={50}
+              max={100}
+              step={5}
+              onChange={(next) => updateSettings({ completionThreshold: next })}
+              labelledBy="threshold-label"
+              describedBy="threshold-hint"
+              caption="del video para completar"
+              className="my-auto"
+            />
           </div>
-          <input
-            id="threshold"
-            type="range"
-            min={50}
-            max={100}
-            step={5}
-            value={settings.completionThreshold}
-            onChange={(event) => updateSettings({ completionThreshold: Number(event.target.value) })}
-            className="mt-4 w-full accent-[var(--primary)]"
-          />
-          <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-            <span>50 %</span>
-            <span>100 %</span>
-          </div>
-        </div>
 
-        <div className="p-5">
-          <Switch
-            label="Reproducción automática sin audio"
-            description="Al entrar al feed, la cápsula visible comienza sola y en silencio."
-            checked={settings.autoplayMuted}
-            onChange={(next) => updateSettings({ autoplayMuted: next })}
-          />
-        </div>
-        <div className="p-5">
-          <Switch
-            label="Subtítulos activados por defecto"
-            description="Recomendado: facilita seguir la cápsula sin sonido y mejora la accesibilidad."
-            checked={settings.subtitlesDefault}
-            onChange={(next) => updateSettings({ subtitlesDefault: next })}
-          />
-        </div>
-        <div className="p-5">
-          <Switch
-            label="Permitir compartir enlaces"
-            description="Muestra el botón para copiar el enlace de una cápsula. El enlace respeta los permisos por marca."
-            checked={settings.allowShare}
-            onChange={(next) => updateSettings({ allowShare: next })}
-          />
+          <div className="divide-y">
+            <div className="p-5">
+              <Switch
+                label="Reproducción automática sin audio"
+                description="Al entrar al feed, la cápsula visible comienza sola y en silencio."
+                checked={settings.autoplayMuted}
+                onChange={(next) => updateSettings({ autoplayMuted: next })}
+              />
+            </div>
+            <div className="p-5">
+              <Switch
+                label="Subtítulos activados por defecto"
+                description="Recomendado: facilita seguir la cápsula sin sonido y mejora la accesibilidad."
+                checked={settings.subtitlesDefault}
+                onChange={(next) => updateSettings({ subtitlesDefault: next })}
+              />
+            </div>
+            <div className="p-5">
+              <Switch
+                label="Permitir compartir enlaces"
+                description="Muestra el botón para copiar el enlace de una cápsula. El enlace respeta los permisos por marca."
+                checked={settings.allowShare}
+                onChange={(next) => updateSettings({ allowShare: next })}
+              />
+            </div>
+          </div>
         </div>
       </Card>
 
