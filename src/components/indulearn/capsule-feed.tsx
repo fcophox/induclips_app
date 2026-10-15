@@ -299,11 +299,20 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                         }
                       />
                     </div>
-                    {/* Columna junto al video: abajo, las acciones; las flechas se
-                        centran en el espacio que queda encima, así nunca las tapan. */}
-                    <div className="hidden h-full flex-col items-center pl-4 lg:flex">
+                    {/* Columna junto al video: arriba, "Info" a la altura del borde
+                        superior del video; abajo, las acciones; las flechas, siempre
+                        en el centro vertical del video. */}
+                    <div className="relative hidden h-full flex-col items-center pl-4 lg:flex">
+                      <SideAction
+                        label="Info"
+                        ariaLabel={isInfoOpen ? "Ocultar información" : "Ver información"}
+                        isPressed={isInfoOpen}
+                        onClick={() => setIsInfoOpen((current) => !current)}
+                      >
+                        <Info className="size-5" />
+                      </SideAction>
                       {capsules.length > 1 && (
-                        <div className="flex min-h-0 flex-1 flex-col justify-center gap-3 py-4">
+                        <div className="absolute left-1/2 top-1/2 flex -translate-y-1/2 translate-x-[calc(-50%+8px)] flex-col gap-3">
                           <button
                             type="button"
                             aria-label="Cápsula anterior"
@@ -347,14 +356,6 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                           onClick={() => save(capsule)}
                         >
                           {saved ? <BookmarkCheck className="size-5" /> : <Bookmark className="size-5" />}
-                        </SideAction>
-                        <SideAction
-                          label="Info"
-                          ariaLabel={isInfoOpen ? "Ocultar información" : "Ver información"}
-                          isPressed={isInfoOpen}
-                          onClick={() => setIsInfoOpen((current) => !current)}
-                        >
-                          <Info className="size-5" />
                         </SideAction>
                       </div>
                     </div>
