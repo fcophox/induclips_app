@@ -432,8 +432,8 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
         ) : (
           <div className="p-6 text-sm text-muted-foreground">
             Sin cápsulas con este filtro.{" "}
-            <Link href="/indulearn/inicio" className="font-medium text-primary underline-offset-4 hover:underline">
-              Volver al inicio
+            <Link href="/indulearn/mi-ruta" className="font-medium text-primary underline-offset-4 hover:underline">
+              Ir a mi ruta
             </Link>
           </div>
         )}

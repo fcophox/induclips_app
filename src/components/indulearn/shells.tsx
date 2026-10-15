@@ -15,6 +15,7 @@ import {
   Menu,
   Moon,
   Repeat,
+  Route,
   Settings,
   ShieldAlert,
   Sun,
@@ -38,11 +39,14 @@ import { Avatar, BrandBadge, EmptyState, Logo, Skeleton } from "./ui";
 type NavItem = { href: string; label: string; shortLabel?: string; icon: LucideIcon; isExact?: boolean };
 
 const COLLABORATOR_NAV: NavItem[] = [
-  { href: "/indulearn/inicio", label: "Inicio", icon: House },
   { href: "/indulearn/explorar", label: "Explorar cápsulas", shortLabel: "Explorar", icon: CirclePlay },
+  { href: "/indulearn/mi-ruta", label: "Mi ruta", icon: Route },
   { href: "/indulearn/aprendizaje", label: "Mi aprendizaje", shortLabel: "Aprendizaje", icon: BookOpenCheck },
   { href: "/indulearn/perfil", label: "Mi perfil", shortLabel: "Perfil", icon: UserRound },
 ];
+
+/** La primera pantalla del colaborador es el feed de cápsulas. */
+const COLLABORATOR_HOME = "/indulearn/explorar";
 
 const ADMIN_NAV: NavItem[] = [
   { href: "/indulearn/admin", label: "Dashboard", icon: LayoutDashboard, isExact: true },
@@ -60,7 +64,7 @@ export const ROLE_LABEL: Record<Role, string> = {
 };
 
 export function homeFor(user: User): string {
-  return isAdmin(user) ? "/indulearn/admin" : "/indulearn/inicio";
+  return isAdmin(user) ? "/indulearn/admin" : COLLABORATOR_HOME;
 }
 
 function isCurrent(pathname: string, item: NavItem): boolean {
@@ -424,7 +428,7 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh bg-background">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-sidebar lg:flex">
         <div className="flex h-16 items-center px-5">
-          <Link href="/indulearn/inicio" className="rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
+          <Link href={COLLABORATOR_HOME} className="rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
             <Logo />
           </Link>
         </div>
@@ -460,7 +464,7 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
             >
               <Menu />
             </Button>
-            <Link href="/indulearn/inicio" className="rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
+            <Link href={COLLABORATOR_HOME} className="rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
               <Logo />
             </Link>
           </div>
@@ -522,7 +526,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           description="Tu perfil de colaborador no tiene permisos para gestionar contenidos, usuarios ni indicadores."
           action={
             <Button asChild>
-              <Link href="/indulearn/inicio">Volver a mi inicio</Link>
+              <Link href={COLLABORATOR_HOME}>Volver al portal</Link>
             </Button>
           }
           className="w-full max-w-md"
@@ -538,7 +542,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       ))}
       <div className="my-2 h-px bg-border" />
       <SidebarLink
-        item={{ href: "/indulearn/inicio", label: "Portal del colaborador", icon: House }}
+        item={{ href: COLLABORATOR_HOME, label: "Portal del colaborador", icon: House }}
         isActive={false}
         onNavigate={onNavigate}
       />

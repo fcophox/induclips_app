@@ -30,7 +30,7 @@ import {
 import { useAppState, useCurrentUser } from "@/lib/indulearn/store";
 import { CATEGORIES } from "@/lib/indulearn/types";
 
-export default function HomePage() {
+export default function MyRoutePage() {
   const state = useAppState();
   const user = useCurrentUser();
   const [brandFilter, setBrandFilter] = useState("all");
