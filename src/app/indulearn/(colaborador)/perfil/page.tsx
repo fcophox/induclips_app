@@ -76,7 +76,7 @@ export default function ProfilePage() {
             {summary.completed} de {summary.available} cápsulas completadas.
           </p>
           <Button asChild variant="outline" className="mt-auto">
-            <Link href="/indulearn/aprendizaje">Ver mi aprendizaje</Link>
+            <Link href="/indulearn/mi-ruta">Ver mi ruta</Link>
           </Button>
         </Card>
       </div>

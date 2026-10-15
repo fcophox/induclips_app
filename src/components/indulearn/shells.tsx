@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
-  BookOpenCheck,
   ChevronsUpDown,
   CirclePlay,
   Film,
@@ -41,7 +40,6 @@ type NavItem = { href: string; label: string; shortLabel?: string; icon: LucideI
 const COLLABORATOR_NAV: NavItem[] = [
   { href: "/indulearn/explorar", label: "Explorar cápsulas", shortLabel: "Explorar", icon: CirclePlay },
   { href: "/indulearn/mi-ruta", label: "Mi ruta", icon: Route },
-  { href: "/indulearn/aprendizaje", label: "Mi aprendizaje", shortLabel: "Aprendizaje", icon: BookOpenCheck },
   { href: "/indulearn/perfil", label: "Mi perfil", shortLabel: "Perfil", icon: UserRound },
 ];
 
@@ -481,7 +479,7 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
 
       <nav
         aria-label="Principal"
-        className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-4 border-t bg-card pb-[env(safe-area-inset-bottom)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid h-16 grid-cols-3 border-t bg-card pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
         {COLLABORATOR_NAV.map((item) => {
           const Icon = item.icon;
