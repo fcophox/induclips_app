@@ -4,6 +4,7 @@ import { useActionState, useState, useTransition } from "react";
 import { Loader2, Check, ExternalLink, PauseCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,18 +96,13 @@ export function TenantControls({
 
         <div className="space-y-1.5">
           <Label htmlFor="plan">Plan</Label>
-          <select
-            id="plan"
-            name="plan"
-            defaultValue={plan}
-            className="h-9 w-full rounded-[var(--radius)] border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          >
+          <Select id="plan" name="plan" defaultValue={plan} className="w-full">
             {Object.entries(PLANS).map(([value, p]) => (
               <option key={value} value={value}>
                 {p.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {/*

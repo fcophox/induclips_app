@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Plus, Loader2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PLANS } from "@/lib/auth/plans";
@@ -94,19 +95,14 @@ export function NewTenantForm({
 
             <div className="space-y-1.5">
               <Label htmlFor="plan">Plan</Label>
-              <select
-                id="plan"
-                name="plan"
-                defaultValue="PRO"
-                className="h-9 w-full rounded-[var(--radius)] border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              >
+              <Select id="plan" name="plan" defaultValue="PRO" className="w-full">
                 {Object.entries(PLANS).map(([value, plan]) => (
                   <option key={value} value={value}>
                     {plan.label} — {plan.limits.maxUsers} usuarios ·{" "}
                     {plan.limits.maxStorageMb} MB
                   </option>
                 ))}
-              </select>
+              </Select>
               <p className="text-xs text-muted-foreground">
                 Se crea en estado de prueba; los límites se ajustan después.
               </p>

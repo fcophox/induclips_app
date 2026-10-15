@@ -226,18 +226,8 @@ export function Skeleton({ className }: { className?: string }) {
 
 // ── Controles ─────────────────────────────────────────────────────────────
 
-export function Select({ className, ...props }: React.ComponentProps<"select">) {
-  return (
-    <select
-      className={cn(
-        "h-9 min-w-0 rounded-[var(--radius)] border bg-card px-3 text-sm text-foreground shadow-xs outline-none transition-[color,box-shadow]",
-        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+/** El mismo select de todo el sistema (chevrón propio, margen interno). */
+export { Select } from "@/components/ui/select";
 
 export function Field({
   label,

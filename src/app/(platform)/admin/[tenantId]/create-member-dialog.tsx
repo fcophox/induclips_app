@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Info, KeyRound, Loader2, RefreshCw, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -208,18 +209,13 @@ export function CreateMemberDialog({
 
               <div className="space-y-1.5">
                 <Label htmlFor="member-role">Rol</Label>
-                <select
-                  id="member-role"
-                  name="role"
-                  defaultValue="EDITOR"
-                  className="h-9 w-full rounded-[var(--radius)] border bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                >
+                <Select id="member-role" name="role" defaultValue="EDITOR" className="w-full">
                   {(Object.keys(ROLE_LABELS) as TenantRole[]).map((r) => (
                     <option key={r} value={r}>
                       {ROLE_LABELS[r]}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               <p className="text-xs text-muted-foreground" hidden={hasAccount === true}>

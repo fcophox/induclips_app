@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Clock, PauseCircle, PlayCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { TenantRole } from "@/lib/auth/roles";
 import type { PlatformState } from "../actions";
@@ -141,19 +142,19 @@ export function MemberList({
                 </p>
               </div>
 
-              <select
+              <Select
+                size="sm"
                 defaultValue={member.role}
                 disabled={busy}
                 aria-label={`Rol de ${member.email}`}
                 onChange={(e) => run(member.id, () => roleAction(member.id, e.target.value))}
-                className="h-8 rounded-[var(--radius)] border bg-background px-2 text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 {(Object.keys(ROLE_LABELS) as TenantRole[]).map((r) => (
                   <option key={r} value={r}>
                     {ROLE_LABELS[r]}
                   </option>
                 ))}
-              </select>
+              </Select>
 
               <Button
                 type="button"
