@@ -39,7 +39,7 @@ import { Avatar, BrandBadge, EmptyState, Logo, Skeleton } from "./ui";
 type NavItem = { href: string; label: string; shortLabel?: string; icon: LucideIcon; isExact?: boolean };
 
 const COLLABORATOR_NAV: NavItem[] = [
-  { href: "/indulearn/explorar", label: "Explorar cápsulas", shortLabel: "Explorar", icon: CirclePlay },
+  { href: "/indulearn/explorar", label: "Explorar", icon: CirclePlay },
   { href: "/indulearn/mi-ruta", label: "Mi ruta", icon: Route },
   { href: "/indulearn/perfil", label: "Mi perfil", shortLabel: "Perfil", icon: UserRound },
 ];
