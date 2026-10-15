@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Captions, CaptionsOff, Check, Pause, Play, Volume2, VolumeX } from "lucide-react";
 
 import { formatDuration } from "@/lib/indulearn/format";
+import { richTextToPlain } from "@/lib/indulearn/rich-text";
 import { recordProgress } from "@/lib/indulearn/store";
 import type { Brand, Capsule, Settings } from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
@@ -208,7 +209,7 @@ export function CapsulePlayer({
           // En escritorio esta información ya está en el panel lateral.
           <div className={cn("min-w-0 lg:hidden", rail && "pr-14")}>
             <h2 className="line-clamp-2 text-base font-semibold leading-snug">{capsule.title}</h2>
-            <p className="mt-1 line-clamp-2 text-sm text-white/80">{capsule.description}</p>
+            <p className="mt-1 line-clamp-2 text-sm text-white/80">{richTextToPlain(capsule.description)}</p>
           </div>
         )}
 

@@ -4,10 +4,11 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 
 import { THUMB_STYLES } from "@/components/indulearn/capsule-card";
+import { RichTextEditor } from "@/components/indulearn/rich-text-editor";
 import { BrandMultiSelect, Field, Modal, Select } from "@/components/indulearn/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { isEmptyRichText, trimRichText } from "@/lib/indulearn/rich-text";
 import { newId, toast, upsertCapsule } from "@/lib/indulearn/store";
 import {
   CATEGORIES,
@@ -62,9 +63,9 @@ export function CapsuleForm({
     if (Object.keys(next).length > 0) return;
 
     const cleanTitle = title.trim();
-    const cleanDescription = description.trim();
-    // Hasta tres saltos seguidos quedan en uno en blanco: así se separan los párrafos.
-    const cleanNotes = notes.trim().replace(/\n{3,}/g, "\n\n");
+    // Descripción y notas llegan como HTML del editor; vacías quedan en blanco.
+    const cleanDescription = isEmptyRichText(description) ? "" : trimRichText(description);
+    const cleanNotes = isEmptyRichText(notes) ? "" : trimRichText(notes);
     const cleanResources = resources.map((item) => ({ ...item, title: item.title.trim() || item.fileName || item.url }));
 
     upsertCapsule({
@@ -121,24 +122,23 @@ export function CapsuleForm({
           )}
         </Field>
 
-        <Field label="Descripción" hint="Una o dos frases: es lo que se lee junto al video.">
-          {(id) => <Textarea id={id} rows={3} value={description} onChange={(event) => setDescription(event.target.value)} />}
-        </Field>
+        <RichTextEditor
+          label="Descripción"
+          hint="Una o dos frases: es lo que se lee junto al video. En las tarjetas se muestra sin formato."
+          value={description}
+          onChange={setDescription}
+          placeholder="Ej.: Qué aprenderá el colaborador y para qué le sirve."
+          minHeightClass="min-h-20"
+        />
 
-        <Field
+        <RichTextEditor
           label="Notas del docente (opcional)"
-          hint="Texto complementario: contexto, qué observar, ejercicios. Separa los párrafos con una línea en blanco."
-        >
-          {(id) => (
-            <Textarea
-              id={id}
-              rows={6}
-              value={notes}
-              onChange={(event) => setNotes(event.target.value)}
-              placeholder="Ej.: Antes de ver el video, piensa en la última vez que un cliente te preguntó por…"
-            />
-          )}
-        </Field>
+          hint="Texto complementario: contexto, qué observar, ejercicios. Admite negrita, cursiva, listas y enlaces."
+          value={notes}
+          onChange={setNotes}
+          placeholder="Ej.: Antes de ver el video, piensa en la última vez que un cliente te preguntó por…"
+          minHeightClass="min-h-40"
+        />
 
         <ResourceEditor value={resources} onChange={setResources} />
 

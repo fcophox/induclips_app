@@ -29,6 +29,7 @@ import {
   percentOf,
   progressOf,
 } from "@/lib/indulearn/selectors";
+import { richTextToPlain } from "@/lib/indulearn/rich-text";
 import { markCompleted, toast, useAppState, useCurrentUser } from "@/lib/indulearn/store";
 import type { AppState, Brand, Capsule, User } from "@/lib/indulearn/types";
 import { CATEGORIES } from "@/lib/indulearn/types";
@@ -143,7 +144,7 @@ export default function MyRoutePage() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold leading-snug text-foreground">{next.title}</h3>
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{next.description}</p>
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{richTextToPlain(next.description)}</p>
               </div>
               {nextProgress && (
                 <div className="flex items-center gap-3">

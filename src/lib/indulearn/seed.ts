@@ -1,7 +1,7 @@
 import type { AppState, Brand, Capsule, Comment, Progress, SubtitleCue, User } from "./types";
 
 /** Subir este número descarta el estado guardado en el navegador. */
-export const STATE_VERSION = 7;
+export const STATE_VERSION = 8;
 
 export const DEALERS = [
   "Sucursal Santiago Centro",
@@ -56,10 +56,15 @@ function buildCapsules(now: Date): Capsule[] {
         "Una alerta roja pide detenerse; una amarilla, revisar pronto.",
       ]),
       notes: [
-        "La entrega del vehículo es el mejor momento para presentar el panel de instrumentos: el cliente está atento y todavía no se acostumbra a los testigos.",
-        "Usa una regla simple de colores. Rojo: detenerse en un lugar seguro (temperatura, presión de aceite, frenos). Amarillo o naranjo: revisar pronto (motor, presión de neumáticos). Verde o azul: sólo informa que un sistema está activo.",
-        "Antes de terminar, muéstrale dónde ver el nivel de aceite y la autonomía en el menú de información del vehículo.",
-      ].join("\n\n"),
+        "<p>La <strong>entrega del vehículo</strong> es el mejor momento para presentar el panel de instrumentos: el cliente está atento y todavía no se acostumbra a los testigos.</p>",
+        "<p>Usa una regla simple de colores:</p>",
+        "<ul>",
+        "<li><p><strong>Rojo:</strong> detenerse en un lugar seguro (temperatura, presión de aceite, frenos).</p></li>",
+        "<li><p><strong>Amarillo o naranjo:</strong> revisar pronto (motor, presión de neumáticos).</p></li>",
+        "<li><p><strong>Verde o azul:</strong> sólo informa que un sistema está activo.</p></li>",
+        "</ul>",
+        "<p>Antes de terminar, muéstrale dónde ver el <em>nivel de aceite</em> y la <em>autonomía</em> en el menú de información del vehículo.</p>",
+      ].join(""),
     },
     {
       id: "c-neumaticos",
@@ -80,9 +85,14 @@ function buildCapsules(now: Date): Capsule[] {
         "El de alto desempeño entrega precisión a mayor velocidad.",
       ]),
       notes: [
-        "La pregunta clave es dónde y cómo maneja el cliente. Ciudad y carretera: neumático de ruta. Faenas, campo o caminos de ripio: todo terreno. Quien busca respuesta deportiva: alto desempeño.",
-        "Recuerda que la presión correcta está en la etiqueta del marco de la puerta del conductor y que un neumático con poca presión gasta más combustible y frena peor.",
-      ].join("\n\n"),
+        "<p>La pregunta clave es <strong>dónde y cómo maneja el cliente</strong>:</p>",
+        "<ul>",
+        "<li><p><strong>Ciudad y carretera:</strong> neumático de ruta.</p></li>",
+        "<li><p><strong>Faenas, campo o caminos de ripio:</strong> todo terreno.</p></li>",
+        "<li><p><strong>Respuesta deportiva:</strong> alto desempeño.</p></li>",
+        "</ul>",
+        "<p>Recuerda que la presión correcta está en la etiqueta del marco de la puerta del conductor, y que un neumático con poca presión <em>gasta más combustible y frena peor</em>.</p>",
+      ].join(""),
       resources: [
         {
           id: "r-neumaticos-wikipedia",
@@ -111,11 +121,16 @@ function buildCapsules(now: Date): Capsule[] {
         "Un motor bien cuidado es más eficiente.",
       ]),
       notes: [
-        "Este video es la puerta de entrada al módulo de motor. Antes de verlo, piensa en la última vez que un cliente te preguntó por el consumo o la potencia: casi siempre la respuesta empieza por entender cómo trabaja el motor.",
-        "Fíjate en tres ideas. Primero, la combustión: la mezcla de aire y combustible se comprime y se enciende, y esa explosión controlada empuja los pistones. Segundo, la temperatura de operación: el motor rinde mejor entre 90 °C y 105 °C, y por eso conviene no exigirlo en frío. Tercero, la eficiencia: un motor bien mantenido consume menos y dura más, un argumento que el cliente entiende de inmediato.",
-        "En la ficha técnica tienes el ciclo de cuatro tiempos con frases cortas para explicárselo al cliente, y en la presentación, cinco láminas listas para usar en la sala de ventas. El diagrama te sirve para dibujarlo en una hoja durante la conversación.",
-        "Para practicar: explica el ciclo de cuatro tiempos a un compañero en menos de un minuto, sin usar las palabras «admisión» ni «escape».",
-      ].join("\n\n"),
+        "<p>Este video es la puerta de entrada al módulo de motor. Antes de verlo, piensa en la última vez que un cliente te preguntó por el consumo o la potencia: casi siempre la respuesta empieza por entender cómo trabaja el motor.</p>",
+        "<p>Fíjate en tres ideas:</p>",
+        "<ol>",
+        "<li><p><strong>La combustión:</strong> la mezcla de aire y combustible se comprime y se enciende, y esa explosión controlada empuja los pistones.</p></li>",
+        "<li><p><strong>La temperatura de operación:</strong> el motor rinde mejor entre 90 °C y 105 °C, y por eso conviene no exigirlo en frío.</p></li>",
+        "<li><p><strong>La eficiencia:</strong> un motor bien mantenido consume menos y dura más, un argumento que el cliente entiende de inmediato.</p></li>",
+        "</ol>",
+        "<p>En la ficha técnica tienes el ciclo de cuatro tiempos con frases cortas para explicárselo al cliente, y en la presentación, cinco láminas listas para la sala de ventas. Si quieres profundizar, revisa el artículo sobre el <a href=\"https://es.wikipedia.org/wiki/Ciclo_de_cuatro_tiempos\">ciclo de cuatro tiempos</a>.</p>",
+        "<p><em>Para practicar:</em> explica el ciclo a un compañero en menos de un minuto, sin usar las palabras «admisión» ni «escape».</p>",
+      ].join(""),
       resources: [
         {
           id: "r-motor-ficha",
@@ -165,9 +180,9 @@ function buildCapsules(now: Date): Capsule[] {
         "Muéstralo en la prueba de manejo.",
       ]),
       notes: [
-        "En la prueba de manejo el cliente siente el freno antes de entenderlo. Aprovecha ese momento: pídele que frene suave y luego con decisión, y explícale qué hizo el auto en cada caso.",
-        "Si el modelo tiene frenado autónomo de emergencia, cuéntale que el sistema puede frenar solo si detecta un obstáculo, pero que nunca reemplaza la atención del conductor.",
-      ].join("\n\n"),
+        "<p>En la prueba de manejo el cliente <strong>siente el freno antes de entenderlo</strong>. Aprovecha ese momento: pídele que frene suave y luego con decisión, y explícale qué hizo el auto en cada caso.</p>",
+        "<p>Si el modelo tiene frenado autónomo de emergencia, cuéntale que el sistema puede frenar solo si detecta un obstáculo, pero que <em>nunca reemplaza la atención del conductor</em>.</p>",
+      ].join(""),
       resources: [
         {
           id: "r-frenos-disco",

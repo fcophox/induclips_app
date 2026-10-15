@@ -38,6 +38,7 @@ export type SubtitleCue = { at: number; text: string };
 export type Capsule = {
   id: string;
   title: string;
+  /** HTML del editor (ver lib/indulearn/rich-text); se acepta texto plano antiguo. */
   description: string;
   /** Marcas autorizadas: quien no tenga al menos una, no ve la cápsula. */
   brandIds: string[];
@@ -58,8 +59,9 @@ export type Capsule = {
   thumb: number;
   subtitles: SubtitleCue[];
   /**
-   * Texto complementario del docente, más largo que la descripción. Los
-   * párrafos se separan con una línea en blanco.
+   * Texto complementario del docente, más largo que la descripción. HTML del
+   * editor; un texto plano antiguo se lee como párrafos separados por una
+   * línea en blanco.
    */
   notes?: string;
   /** Material que el docente sube o enlaza junto al video. */

@@ -4,8 +4,11 @@ import { useState } from "react";
 import { ArrowUpRight, Download, FileText, Globe, Image as ImageIcon, Presentation } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { richTextToPlain } from "@/lib/indulearn/rich-text";
 import type { CapsuleResource, CapsuleResourceKind } from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
+
+import { RichText } from "./rich-text";
 
 /** Notas más largas que esto se muestran recortadas, con «Leer más». */
 const NOTES_PREVIEW_CHARS = 360;
@@ -17,8 +20,8 @@ const NOTES_PREVIEW_CHARS = 360;
  */
 export function TeacherNotes({ notes, className }: { notes: string; className?: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const paragraphs = notes.split(/\n\s*\n/).filter(Boolean);
-  const isLong = notes.length > NOTES_PREVIEW_CHARS;
+  // El largo se mide sin etiquetas: el formato no cuenta como texto.
+  const isLong = richTextToPlain(notes).length > NOTES_PREVIEW_CHARS;
   const isClipped = isLong && !isExpanded;
 
   return (
@@ -28,14 +31,12 @@ export function TeacherNotes({ notes, className }: { notes: string; className?: 
       </h2>
       <div
         className={cn(
-          "relative mt-2 flex flex-col gap-3 text-sm leading-relaxed text-muted-foreground",
+          "relative mt-2",
           isClipped &&
             "max-h-36 overflow-hidden after:absolute after:inset-x-0 after:bottom-0 after:h-12 after:bg-gradient-to-t after:from-card after:to-transparent",
         )}
       >
-        {paragraphs.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
+        <RichText html={notes} className="text-sm leading-relaxed text-muted-foreground" />
       </div>
       {isLong && (
         <button
