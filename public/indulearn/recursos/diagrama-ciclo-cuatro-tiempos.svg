@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" font-family="Helvetica, Arial, sans-serif">
+<rect width="1200" height="675" fill="#ffffff"/>
+<rect width="1200" height="86" fill="#0C4C8E"/>
+<text x="48" y="54" font-size="30" font-weight="700" fill="#fff">El ciclo de cuatro tiempos</text>
+<text x="1152" y="54" font-size="16" fill="#dbeafe" text-anchor="end">Inducampus online · Diagrama de ejemplo</text>
+<defs><marker id="a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0C4C8E"/></marker></defs>
+<rect x="116.0" y="170" width="140" height="190" fill="#bfdbfe"/>
+<rect x="116.0" y="170" width="140" height="300" fill="none" stroke="#1f2937" stroke-width="3"/>
+<rect x="122.0" y="360" width="128" height="46" rx="4" fill="#9ca3af" stroke="#1f2937" stroke-width="2"/>
+<line x1="186.0" y1="406" x2="208.0" y2="510" stroke="#1f2937" stroke-width="8" stroke-linecap="round"/>
+<circle cx="186.0" cy="522" r="30" fill="none" stroke="#5b6778" stroke-width="3" stroke-dasharray="6 6"/>
+<line x1="274.0" y1="230" x2="274.0" y2="400" stroke="#0C4C8E" stroke-width="3" marker-end="url(#a)"/>
+<text x="186.0" y="613" font-size="22" font-weight="700" fill="#0C4C8E" text-anchor="middle">1. Admisión</text>
+<text x="186.0" y="641" font-size="16" fill="#1f2937" text-anchor="middle">Entra aire y combustible</text>
+<rect x="106.0" y="136" width="160" height="34" rx="6" fill="#e5e7eb" stroke="#1f2937" stroke-width="2"/>
+<line x1="148.0" y1="110" x2="148.0" y2="182" stroke="#1f2937" stroke-width="4"/>
+<rect x="132.0" y="180" width="32" height="7" rx="2" fill="#1f2937"/>
+<text x="148.0" y="104" font-size="13" fill="#5b6778" text-anchor="middle">A</text>
+<line x1="224.0" y1="110" x2="224.0" y2="166" stroke="#1f2937" stroke-width="4"/>
+<rect x="208.0" y="164" width="32" height="7" rx="2" fill="#1f2937"/>
+<text x="224.0" y="104" font-size="13" fill="#5b6778" text-anchor="middle">E</text>
+<rect x="181.0" y="118" width="10" height="22" fill="#5b6778"/>
+<rect x="392.0" y="170" width="140" height="80" fill="#93c5fd"/>
+<rect x="392.0" y="170" width="140" height="300" fill="none" stroke="#1f2937" stroke-width="3"/>
+<rect x="398.0" y="250" width="128" height="46" rx="4" fill="#9ca3af" stroke="#1f2937" stroke-width="2"/>
+<line x1="462.0" y1="296" x2="440.0" y2="510" stroke="#1f2937" stroke-width="8" stroke-linecap="round"/>
+<circle cx="462.0" cy="522" r="30" fill="none" stroke="#5b6778" stroke-width="3" stroke-dasharray="6 6"/>
+<line x1="550.0" y1="400" x2="550.0" y2="230" stroke="#0C4C8E" stroke-width="3" marker-end="url(#a)"/>
+<text x="462.0" y="613" font-size="22" font-weight="700" fill="#0C4C8E" text-anchor="middle">2. Compresión</text>
+<text x="462.0" y="641" font-size="16" fill="#1f2937" text-anchor="middle">El pistón comprime la mezcla</text>
+<rect x="382.0" y="136" width="160" height="34" rx="6" fill="#e5e7eb" stroke="#1f2937" stroke-width="2"/>
+<line x1="424.0" y1="110" x2="424.0" y2="166" stroke="#1f2937" stroke-width="4"/>
+<rect x="408.0" y="164" width="32" height="7" rx="2" fill="#1f2937"/>
+<text x="424.0" y="104" font-size="13" fill="#5b6778" text-anchor="middle">A</text>
+<line x1="500.0" y1="110" x2="500.0" y2="166" stroke="#1f2937" stroke-width="4"/>
+<rect x="484.0" y="164" width="32" height="7" rx="2" fill="#1f2937"/>
+<text x="500.0" y="104" font-size="13" fill="#5b6778" text-anchor="middle">E</text>
+<rect x="457.0" y="118" width="10" height="22" fill="#5b6778"/>
+<rect x="668.0" y="170" width="140" height="190" fill="#fdba74"/>
+<rect x="668.0" y="170" width="140" height="300" fill="none" stroke="#1f2937" stroke-width="3"/>
+<rect x="674.0" y="360" width="128" height="46" rx="4" fill="#9ca3af" stroke="#1f2937" stroke-width="2"/>
+<line x1="738.0" y1="406" x2="760.0" y2="510" stroke="#1f2937" stroke-width="8" stroke-linecap="round"/>
+<circle cx="738.0" cy="522" r="30" fill="none" stroke="#5b6778" stroke-width="3" stroke-dasharray="6 6"/>
+<line x1="826.0" y1="230" x2="826.0" y2="400" stroke="#0C4C8E" stroke-width="3" marker-end="url(#a)"/>
+<text x="738.0" y="613" font-size="22" font-weight="700" fill="#0C4C8E" text-anchor="middle">3. Combustión</text>
+<text x="738.0" y="641" font-size="16" fill="#1f2937" text-anchor="middle">La chispa empuja el pistón</text>
+<rect x="658.0" y="136" width="160" height="34" rx="6" fill="#e5e7eb" stroke="#1f2937" stroke-width="2"/>
+<line x1="700.0" y1="110" x2="700.0" y2="166" stroke="#1f2937" stroke-width="4"/>
+<rect x="684.0" y="164" width="32" height="7" rx="2" fill="#1f2937"/>
+<text x="700.0" y="104" font-size="13" fill="#5b6778" text-anchor="middle">A</text>
+<line x1="776.0" y1="110" x2="776.0" y2="166" stroke="#1f2937" stroke-width="4"/>
+<rect x="760.0" y="164" width="32" height="7" rx="2" fill="#1f2937"/>
+<text x="776.0" y="104" font-size="13" fill="#5b6778" text-anchor="middle">E</text>
+<rect x="733.0" y="118" width="10" height="22" fill="#5b6778"/>
+<path d="M738.0 174 l-10 18 l14 -4 l-8 20" stroke="#f97316" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<rect x="944.0" y="170" width="140" height="80" fill="#d1d5db"/>
+<rect x="944.0" y="170" width="140" height="300" fill="none" stroke="#1f2937" stroke-width="3"/>
+<rect x="950.0" y="250" width="128" height="46" rx="4" fill="#9ca3af" stroke="#1f2937" stroke-width="2"/>
+<line x1="1014.0" y1="296" x2="992.0" y2="510" stroke="#1f2937" stroke-width="8" stroke-linecap="round"/>
+<circle cx="1014.0" cy="522" r="30" fill="none" stroke="#5b6778" stroke-width="3" stroke-dasharray="6 6"/>
+<line x1="1102.0" y1="400" x2="1102.0" y2="230" stroke="#0C4C8E" stroke-width="3" marker-end="url(#a)"/>
+<text x="1014.0" y="613" font-size="22" font-weight="700" fill="#0C4C8E" text-anchor="middle">4. Escape</text>
+<text x="1014.0" y="641" font-size="16" fill="#1f2937" text-anchor="middle">Salen los gases quemados</text>
+<rect x="934.0" y="136" width="160" height="34" rx="6" fill="#e5e7eb" stroke="#1f2937" stroke-width="2"/>
+<line x1="976.0" y1="110" x2="976.0" y2="166" stroke="#1f2937" stroke-width="4"/>
+<rect x="960.0" y="164" width="32" height="7" rx="2" fill="#1f2937"/>
+<text x="976.0" y="104" font-size="13" fill="#5b6778" text-anchor="middle">A</text>
+<line x1="1052.0" y1="110" x2="1052.0" y2="182" stroke="#1f2937" stroke-width="4"/>
+<rect x="1036.0" y="180" width="32" height="7" rx="2" fill="#1f2937"/>
+<text x="1052.0" y="104" font-size="13" fill="#5b6778" text-anchor="middle">E</text>
+<rect x="1009.0" y="118" width="10" height="22" fill="#5b6778"/>
+<text x="48" y="667" font-size="12" fill="#5b6778">A: válvula de admisión · E: válvula de escape</text>
+</svg>

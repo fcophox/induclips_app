@@ -1,7 +1,7 @@
 import type { AppState, Brand, Capsule, Comment, Progress, SubtitleCue, User } from "./types";
 
 /** Subir este número descarta el estado guardado en el navegador. */
-export const STATE_VERSION = 5;
+export const STATE_VERSION = 6;
 
 export const DEALERS = [
   "Sucursal Santiago Centro",
@@ -173,6 +173,41 @@ function buildCapsules(now: Date): Capsule[] {
         "La temperatura de operación es clave.",
         "Un motor bien cuidado es más eficiente.",
       ]),
+      notes: [
+        "Este video es la puerta de entrada al módulo de motor. Antes de verlo, piensa en la última vez que un cliente te preguntó por el consumo o la potencia: casi siempre la respuesta empieza por entender cómo trabaja el motor.",
+        "Fíjate en tres ideas. Primero, la combustión: la mezcla de aire y combustible se comprime y se enciende, y esa explosión controlada empuja los pistones. Segundo, la temperatura de operación: el motor rinde mejor entre 90 °C y 105 °C, y por eso conviene no exigirlo en frío. Tercero, la eficiencia: un motor bien mantenido consume menos y dura más, un argumento que el cliente entiende de inmediato.",
+        "En la ficha técnica tienes el ciclo de cuatro tiempos con frases cortas para explicárselo al cliente, y en la presentación, cinco láminas listas para usar en la sala de ventas. El diagrama te sirve para dibujarlo en una hoja durante la conversación.",
+        "Para practicar: explica el ciclo de cuatro tiempos a un compañero en menos de un minuto, sin usar las palabras «admisión» ni «escape».",
+      ].join("\n\n"),
+      resources: [
+        {
+          id: "r-motor-ficha",
+          kind: "pdf",
+          title: "Ficha técnica: el ciclo de cuatro tiempos",
+          url: "/indulearn/recursos/ficha-tecnica-ciclo-cuatro-tiempos.pdf",
+          size: "58 KB",
+        },
+        {
+          id: "r-motor-presentacion",
+          kind: "presentation",
+          title: "El motor en 5 láminas",
+          url: "/indulearn/recursos/el-motor-en-5-laminas.pptx",
+          size: "34 KB",
+        },
+        {
+          id: "r-motor-diagrama",
+          kind: "image",
+          title: "Diagrama del ciclo de cuatro tiempos",
+          url: "/indulearn/recursos/diagrama-ciclo-cuatro-tiempos.svg",
+          size: "7 KB",
+        },
+        {
+          id: "r-motor-wikipedia",
+          kind: "link",
+          title: "Motor de combustión interna (Wikipedia)",
+          url: "https://es.wikipedia.org/wiki/Motor_de_combusti%C3%B3n_interna",
+        },
+      ],
     },
     {
       id: "c-frenos",
@@ -192,6 +227,18 @@ function buildCapsules(now: Date): Capsule[] {
         "El frenado de emergencia detiene el auto a tiempo.",
         "Muéstralo en la prueba de manejo.",
       ]),
+      notes: [
+        "En la prueba de manejo el cliente siente el freno antes de entenderlo. Aprovecha ese momento: pídele que frene suave y luego con decisión, y explícale qué hizo el auto en cada caso.",
+        "Si el modelo tiene frenado autónomo de emergencia, cuéntale que el sistema puede frenar solo si detecta un obstáculo, pero que nunca reemplaza la atención del conductor.",
+      ].join("\n\n"),
+      resources: [
+        {
+          id: "r-frenos-disco",
+          kind: "link",
+          title: "Freno de disco (Wikipedia)",
+          url: "https://es.wikipedia.org/wiki/Freno_de_disco",
+        },
+      ],
     },
     {
       id: "c-motor-anatomia",

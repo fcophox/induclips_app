@@ -57,6 +57,27 @@ export type Capsule = {
   /** Índice del estilo de miniatura generada (ver `THUMB_STYLES`). */
   thumb: number;
   subtitles: SubtitleCue[];
+  /**
+   * Texto complementario del docente, más largo que la descripción. Los
+   * párrafos se separan con una línea en blanco.
+   */
+  notes?: string;
+  /** Material que el docente sube o enlaza junto al video. */
+  resources?: CapsuleResource[];
+};
+
+export type CapsuleResourceKind = "pdf" | "presentation" | "image" | "link";
+
+export type CapsuleResource = {
+  id: string;
+  kind: CapsuleResourceKind;
+  title: string;
+  /** Ruta del archivo (`/indulearn/recursos/…`) o URL externa en los enlaces. */
+  url: string;
+  /** Tamaño legible del archivo (p. ej. "58 KB"); los enlaces no lo llevan. */
+  size?: string;
+  /** Nombre original del archivo subido, para descargarlo con ese nombre. */
+  fileName?: string;
 };
 
 /**

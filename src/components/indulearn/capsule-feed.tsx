@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 
 import { CapsuleThumb, capsuleHref } from "./capsule-card";
 import { CommentForm, CommentList, CommentsPanel } from "./capsule-comments";
+import { ResourceList, TeacherNotes } from "./capsule-resources";
 import { CapsulePlayer, RailButton } from "./capsule-player";
 import { BrandBadge, EmptyState, FilterChips, Modal, ProgressBar, StateBadge } from "./ui";
 
@@ -423,6 +424,9 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                   <h1 className="text-lg font-semibold leading-snug text-foreground">{active.title}</h1>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{active.description}</p>
                 </div>
+
+                {active.notes && <TeacherNotes key={active.id} notes={active.notes} />}
+                {active.resources && active.resources.length > 0 && <ResourceList resources={active.resources} />}
 
                 {renderProgress(active)}
 
