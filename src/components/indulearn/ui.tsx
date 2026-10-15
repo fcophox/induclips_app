@@ -555,6 +555,7 @@ export function Modal({
   children,
   footer,
   size = "md",
+  variant = "dialog",
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -563,6 +564,11 @@ export function Modal({
   children: React.ReactNode;
   footer?: React.ReactNode;
   size?: "md" | "lg";
+  /**
+   * `drawer`: panel a toda la altura que entra desde la derecha y ocupa cerca
+   * del 70 % del ancho, para formularios largos que conviene ver junto a la lista.
+   */
+  variant?: "dialog" | "drawer";
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -591,8 +597,15 @@ export function Modal({
 
   if (!isOpen || !isMounted) return null;
 
+  const isDrawer = variant === "drawer";
+
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+    <div
+      className={cn(
+        "fixed inset-0 z-50 flex",
+        isDrawer ? "justify-end" : "items-end justify-center sm:items-center sm:p-4",
+      )}
+    >
       <div className="animate-backdrop-in fixed inset-0 bg-background/60 backdrop-blur-xs" onClick={onClose} aria-hidden />
       <div
         ref={panelRef}
@@ -601,11 +614,13 @@ export function Modal({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          "animate-modal-in relative flex max-h-[92dvh] w-full flex-col rounded-t-2xl border bg-card shadow-lg outline-none sm:rounded-2xl",
-          size === "lg" ? "sm:max-w-2xl" : "sm:max-w-lg",
+          "relative flex w-full flex-col border bg-card shadow-lg outline-none",
+          isDrawer
+            ? "animate-drawer-in h-dvh border-y-0 border-r-0 motion-reduce:animate-none sm:w-[70vw] sm:min-w-[36rem] sm:max-w-[72rem] sm:rounded-l-2xl"
+            : cn("animate-modal-in max-h-[92dvh] rounded-t-2xl sm:rounded-2xl", size === "lg" ? "sm:max-w-2xl" : "sm:max-w-lg"),
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b px-5 py-4">
+        <div className={cn("flex items-start justify-between gap-4 border-b px-5 py-4", isDrawer && "sm:px-7")}>
           <div className="min-w-0">
             <h2 id={titleId} className="text-base font-semibold text-foreground">
               {title}
@@ -621,8 +636,10 @@ export function Modal({
             <X className="size-4" aria-hidden />
           </button>
         </div>
-        <div className="overflow-y-auto px-5 py-5">{children}</div>
-        {footer && <div className="flex flex-wrap justify-end gap-2 border-t px-5 py-4">{footer}</div>}
+        <div className={cn("overflow-y-auto px-5 py-5", isDrawer && "flex-1 sm:px-7 sm:py-6")}>{children}</div>
+        {footer && (
+          <div className={cn("flex flex-wrap justify-end gap-2 border-t px-5 py-4", isDrawer && "sm:px-7")}>{footer}</div>
+        )}
       </div>
     </div>,
     document.body,

@@ -6,6 +6,7 @@ import { Captions, CaptionsOff, Check, Pause, Play, Volume2, VolumeX } from "luc
 import { formatDuration } from "@/lib/indulearn/format";
 import { richTextToPlain } from "@/lib/indulearn/rich-text";
 import { recordProgress } from "@/lib/indulearn/store";
+import { YOUTUBE_HOST, loadYouTubeApi, parseYouTubeId, type YouTubePlayer } from "@/lib/indulearn/youtube";
 import type { Brand, Capsule, Settings } from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
 
@@ -32,18 +33,24 @@ type Props = {
   className?: string;
 };
 
-/** Rutas locales y URLs http(s) se reproducen; el resto (`demo://…`) se simula. */
+/** Rutas locales y URLs http(s) de archivos se reproducen con `<video>`. */
 function isPlayableSource(ref: string): boolean {
   return /^(\/|https?:\/\/)/.test(ref);
 }
 
+/** Estado "terminado" del reproductor de YouTube (YT.PlayerState.ENDED). */
+const YT_ENDED = 0;
+
 /**
  * Reproductor de cápsulas.
  *
- * Si la cápsula tiene un archivo de video, lo reproduce con `<video>` y toma la
- * posición de sus eventos (`timeupdate` / `ended`). Si no, simula la
- * reproducción con un reloj y un fondo animado. Controles, subtítulos y
- * registro de progreso son los mismos en los dos casos.
+ * - Video de YouTube: se incrusta con la API de YouTube, sin sus controles; se
+ *   manejan con los nuestros y la posición se lee cada tick. Sólo la cápsula
+ *   visible tiene reproductor: las demás muestran su portada.
+ * - Archivo de video: `<video>`, con la posición de sus eventos.
+ * - Sin video (`demo://…`): se simula con un reloj y un fondo animado.
+ *
+ * Controles, subtítulos y registro de progreso son los mismos en los tres casos.
  */
 export function CapsulePlayer({
   capsule,
@@ -63,11 +70,80 @@ export function CapsulePlayer({
   const [isMuted, setIsMuted] = useState(true);
   const [hasSubtitles, setHasSubtitles] = useState(settings.subtitlesDefault);
   const mediaRef = useRef<HTMLVideoElement>(null);
-  const hasMedia = isPlayableSource(capsule.videoRef);
+  const youTubeId = parseYouTubeId(capsule.videoRef);
+  const isYouTube = youTubeId !== null;
+  const hasMedia = !isYouTube && isPlayableSource(capsule.videoRef);
+  const isSimulated = !isYouTube && !hasMedia;
   const [mediaDuration, setMediaDuration] = useState<number | null>(null);
+  const youTubeHostRef = useRef<HTMLDivElement>(null);
+  const youTubeRef = useRef<YouTubePlayer | null>(null);
+  const [isYouTubeReady, setIsYouTubeReady] = useState(false);
+  const positionRef = useRef(position);
+  positionRef.current = position;
 
   const duration = mediaDuration ?? capsule.durationSec;
   const hasEnded = position >= duration;
+
+  // YouTube: el reproductor existe sólo mientras la cápsula está en pantalla.
+  // Arranca silenciado (así el navegador deja que empiece solo) y desde donde
+  // se había quedado.
+  useEffect(() => {
+    if (!youTubeId || !isActive) return;
+    const host = youTubeHostRef.current;
+    if (!host) return;
+    let isCancelled = false;
+    const mount = document.createElement("div");
+    host.appendChild(mount);
+
+    loadYouTubeApi()
+      .then((YT) => {
+        if (isCancelled) return;
+        youTubeRef.current = new YT.Player(mount, {
+          videoId: youTubeId,
+          width: "100%",
+          height: "100%",
+          host: YOUTUBE_HOST,
+          playerVars: {
+            autoplay: 0,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            mute: 1,
+            playsinline: 1,
+            rel: 0,
+            start: Math.floor(positionRef.current),
+          },
+          events: {
+            onReady: ({ target }) => {
+              if (isCancelled) return;
+              const length = target.getDuration();
+              if (length > 0) setMediaDuration(length);
+              setIsYouTubeReady(true);
+            },
+            onStateChange: ({ data, target }) => {
+              if (data === YT_ENDED) setPosition(target.getDuration());
+            },
+          },
+        });
+      })
+      .catch(() => {
+        // Sin conexión con YouTube queda la portada; los controles siguen respondiendo.
+      });
+
+    return () => {
+      isCancelled = true;
+      setIsYouTubeReady(false);
+      try {
+        youTubeRef.current?.destroy();
+      } catch {
+        // El iframe ya no existe.
+      }
+      youTubeRef.current = null;
+      host.replaceChildren();
+    };
+  }, [youTubeId, isActive]);
 
   // Al entrar en pantalla arranca sola y en silencio (si así está configurado);
   // al salir se pausa, para que nunca haya dos cápsulas corriendo a la vez.
@@ -78,18 +154,38 @@ export function CapsulePlayer({
 
   // Reloj del modo simulado.
   useEffect(() => {
-    if (hasMedia || !isPlaying || !isActive) return;
+    if (!isSimulated || !isPlaying || !isActive) return;
     const id = setInterval(() => {
       setPosition((current) => Math.min(duration, current + TICK_MS / 1000));
     }, TICK_MS);
     return () => clearInterval(id);
-  }, [hasMedia, isPlaying, isActive, duration]);
+  }, [isSimulated, isPlaying, isActive, duration]);
+
+  // YouTube no avisa del avance: se lee su posición en cada tick.
+  useEffect(() => {
+    if (!isYouTubeReady || !isPlaying || !isActive) return;
+    const id = setInterval(() => {
+      const current = youTubeRef.current?.getCurrentTime();
+      if (typeof current === "number") setPosition(current);
+    }, TICK_MS);
+    return () => clearInterval(id);
+  }, [isYouTubeReady, isPlaying, isActive]);
 
   // Con video real, el estado manda sobre el elemento. El silencio va primero:
   // los navegadores sólo permiten arrancar solo a un video silenciado.
   useEffect(() => {
     if (mediaRef.current) mediaRef.current.muted = isMuted;
-  }, [isMuted]);
+    if (isYouTubeReady) {
+      if (isMuted) youTubeRef.current?.mute();
+      else youTubeRef.current?.unMute();
+    }
+  }, [isMuted, isYouTubeReady]);
+
+  useEffect(() => {
+    if (!isYouTubeReady) return;
+    if (isPlaying && isActive) youTubeRef.current?.playVideo();
+    else youTubeRef.current?.pauseVideo();
+  }, [isPlaying, isActive, isYouTubeReady]);
 
   useEffect(() => {
     const media = mediaRef.current;
@@ -115,6 +211,7 @@ export function CapsulePlayer({
   function seek(seconds: number) {
     setPosition(seconds);
     if (mediaRef.current) mediaRef.current.currentTime = seconds;
+    youTubeRef.current?.seekTo(seconds, true);
   }
 
   function togglePlay() {
@@ -134,7 +231,18 @@ export function CapsulePlayer({
 
   return (
     <div className={cn("relative isolate h-full w-full overflow-hidden bg-slate-950 text-white", className)}>
-      <CapsuleArt capsule={capsule} isAnimated={isPlaying && !hasMedia} />
+      <CapsuleArt capsule={capsule} isAnimated={isPlaying && isSimulated} />
+      {isYouTube && (
+        // El iframe no recibe clics: los controles son los nuestros, que van encima.
+        <div
+          ref={youTubeHostRef}
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-0 bg-black transition-opacity duration-300 [&_iframe]:size-full",
+            isYouTubeReady ? "opacity-100" : "opacity-0",
+          )}
+        />
+      )}
       {hasMedia && (
         <video
           ref={mediaRef}
@@ -242,14 +350,14 @@ export function CapsulePlayer({
             <span className="px-1 text-xs tabular-nums text-white/85">
               {formatDuration(position)} / {formatDuration(duration)}
             </span>
-            {!hasMedia && <span className="ml-auto hidden text-[11px] text-white/60 sm:inline">Video demostrativo</span>}
+            {isSimulated && <span className="ml-auto hidden text-[11px] text-white/60 sm:inline">Video demostrativo</span>}
             <PlayerButton
               label={
-                isMuted ? (hasMedia ? "Activar sonido" : "Activar sonido (el video demostrativo no tiene audio)") : "Silenciar"
+                isMuted ? (isSimulated ? "Activar sonido (el video demostrativo no tiene audio)" : "Activar sonido") : "Silenciar"
               }
               isPressed={!isMuted}
               onClick={() => setIsMuted((current) => !current)}
-              className={cn("ml-auto", !hasMedia && "sm:ml-0")}
+              className={cn("ml-auto", isSimulated && "sm:ml-0")}
             >
               {isMuted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
             </PlayerButton>
