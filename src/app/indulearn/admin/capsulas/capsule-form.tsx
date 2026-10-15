@@ -9,8 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { newId, toast, upsertCapsule } from "@/lib/indulearn/store";
-import { CATEGORIES, type Brand, type Capsule, type CapsuleStatus, type Category } from "@/lib/indulearn/types";
+import {
+  CATEGORIES,
+  type Brand,
+  type Capsule,
+  type CapsuleResource,
+  type CapsuleStatus,
+  type Category,
+} from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
+
+import { ResourceEditor } from "./resource-editor";
 
 const MIN_DURATION = 5;
 const MAX_DURATION = 600;
@@ -29,6 +38,8 @@ export function CapsuleForm({
 }) {
   const [title, setTitle] = useState(capsule?.title ?? "");
   const [description, setDescription] = useState(capsule?.description ?? "");
+  const [notes, setNotes] = useState(capsule?.notes ?? "");
+  const [resources, setResources] = useState<CapsuleResource[]>(capsule?.resources ?? []);
   const [videoRef, setVideoRef] = useState(capsule?.videoRef ?? "");
   const [duration, setDuration] = useState(String(capsule?.durationSec ?? 90));
   const [thumb, setThumb] = useState(capsule?.thumb ?? 0);
@@ -52,6 +63,9 @@ export function CapsuleForm({
 
     const cleanTitle = title.trim();
     const cleanDescription = description.trim();
+    // Hasta tres saltos seguidos quedan en uno en blanco: así se separan los párrafos.
+    const cleanNotes = notes.trim().replace(/\n{3,}/g, "\n\n");
+    const cleanResources = resources.map((item) => ({ ...item, title: item.title.trim() || item.fileName || item.url }));
 
     upsertCapsule({
       id: capsule?.id ?? newId("c"),
@@ -68,6 +82,8 @@ export function CapsuleForm({
       publishedAt: status === "published" ? (capsule?.publishedAt ?? new Date().toISOString()) : (capsule?.publishedAt ?? null),
       // Una cápsula nueva no tiene subtítulos cargados: se muestra su título.
       subtitles: capsule?.subtitles ?? [{ at: 0, text: cleanTitle }],
+      notes: cleanNotes || undefined,
+      resources: cleanResources.length > 0 ? cleanResources : undefined,
     });
 
     toast(capsule ? "Cambios guardados" : status === "published" ? "Cápsula creada y publicada" : "Cápsula creada como borrador");
@@ -108,6 +124,23 @@ export function CapsuleForm({
         <Field label="Descripción" hint="Una o dos frases: es lo que se lee junto al video.">
           {(id) => <Textarea id={id} rows={3} value={description} onChange={(event) => setDescription(event.target.value)} />}
         </Field>
+
+        <Field
+          label="Notas del docente (opcional)"
+          hint="Texto complementario: contexto, qué observar, ejercicios. Separa los párrafos con una línea en blanco."
+        >
+          {(id) => (
+            <Textarea
+              id={id}
+              rows={6}
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Ej.: Antes de ver el video, piensa en la última vez que un cliente te preguntó por…"
+            />
+          )}
+        </Field>
+
+        <ResourceEditor value={resources} onChange={setResources} />
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Video o referencia de video" hint="Una ruta (/indulearn/videos/…) o URL https se reproduce; otro texto queda como dato.">

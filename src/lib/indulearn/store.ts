@@ -38,8 +38,12 @@ function subscribe(listener: () => void) {
 function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // Sin almacenamiento (modo privado, cuota): la demo sigue en memoria.
+  } catch (error) {
+    // Sin almacenamiento (modo privado, cuota): la demo sigue en memoria. Si es
+    // por espacio, se avisa: casi siempre lo llena material subido a una cápsula.
+    if (error instanceof DOMException && error.name === "QuotaExceededError") {
+      toast("El navegador no tiene espacio para guardar los cambios: quita material pesado o se perderán al recargar.", "error");
+    }
   }
 }
 
