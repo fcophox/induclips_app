@@ -1,7 +1,7 @@
 import type { AppState, Brand, Capsule, Comment, Progress, SubtitleCue, User } from "./types";
 
 /** Subir este número descarta el estado guardado en el navegador. */
-export const STATE_VERSION = 6;
+export const STATE_VERSION = 7;
 
 export const DEALERS = [
   "Sucursal Santiago Centro",
@@ -35,126 +35,63 @@ function cues(durationSec: number, lines: string[]): SubtitleCue[] {
 
 function buildCapsules(now: Date): Capsule[] {
   return [
+    // Todas las cápsulas tienen video real, en public/indulearn/videos.
+    // Contenido técnico común a todas las marcas.
     {
-      id: "c-kia-seguridad",
-      title: "Introducción a las tecnologías de seguridad",
+      id: "c-panel-instrumentos",
+      title: "El panel de instrumentos y sus alertas",
       description:
-        "Recorrido breve por los sistemas de seguridad activa y pasiva, y cómo explicarlos a un cliente en lenguaje simple.",
-      brandIds: ["kia"],
+        "Del botón de encendido a las alertas del tablero: qué indica cada testigo y cómo explicárselo al cliente en la entrega.",
+      brandIds: ["kia", "hyundai", "landking", "sinotruk"],
       category: "Seguridad",
-      durationSec: 95,
+      durationSec: 8,
       status: "published",
-      publishedAt: daysAgo(42, now),
-      videoRef: "demo://kia/seguridad-intro.mp4",
+      publishedAt: daysAgo(0, now),
+      videoRef: "/indulearn/videos/panel-de-instrumentos.mp4",
+      posterRef: "/indulearn/videos/panel-de-instrumentos.jpg",
       thumb: 0,
-      subtitles: cues(95, [
-        "La seguridad es uno de los primeros temas que pregunta un cliente.",
-        "Distingue entre seguridad activa, que evita el accidente…",
-        "…y seguridad pasiva, que protege cuando ya ocurrió.",
-        "Explica cada sistema con una situación cotidiana.",
-        "Cierra con el beneficio: tranquilidad para toda la familia.",
+      subtitles: cues(8, [
+        "Al encender, todos los testigos se iluminan un instante.",
+        "El panel muestra el estado del vehículo en tiempo real.",
+        "Una alerta roja pide detenerse; una amarilla, revisar pronto.",
       ]),
+      notes: [
+        "La entrega del vehículo es el mejor momento para presentar el panel de instrumentos: el cliente está atento y todavía no se acostumbra a los testigos.",
+        "Usa una regla simple de colores. Rojo: detenerse en un lugar seguro (temperatura, presión de aceite, frenos). Amarillo o naranjo: revisar pronto (motor, presión de neumáticos). Verde o azul: sólo informa que un sistema está activo.",
+        "Antes de terminar, muéstrale dónde ver el nivel de aceite y la autonomía en el menú de información del vehículo.",
+      ].join("\n\n"),
     },
     {
-      id: "c-hyundai-asistencia",
-      title: "Características de sistemas de asistencia",
+      id: "c-neumaticos",
+      title: "Tipos de neumáticos",
       description:
-        "Qué hacen los asistentes de conducción, en qué situaciones ayudan y cómo demostrarlos durante una prueba de manejo.",
-      brandIds: ["hyundai"],
-      category: "Tecnología",
-      durationSec: 110,
-      status: "published",
-      publishedAt: daysAgo(35, now),
-      videoRef: "demo://hyundai/asistencia.mp4",
-      thumb: 1,
-      subtitles: cues(110, [
-        "Los asistentes de conducción apoyan al conductor, no lo reemplazan.",
-        "Presenta cada asistente con el problema que resuelve.",
-        "En la prueba de manejo, anticipa lo que el cliente va a sentir.",
-        "Evita tecnicismos: habla de comodidad y confianza.",
-        "Recuerda verificar el equipamiento de cada versión.",
-      ]),
-    },
-    {
-      id: "c-landking-portafolio",
-      title: "Conocimiento del portafolio comercial",
-      description:
-        "Panorama de la gama y de los perfiles de cliente a los que apunta cada línea, para orientar la primera conversación.",
-      brandIds: ["landking"],
-      category: "Portafolio",
-      durationSec: 80,
-      status: "published",
-      publishedAt: daysAgo(28, now),
-      videoRef: "demo://landking/portafolio.mp4",
-      thumb: 2,
-      subtitles: cues(80, [
-        "Conocer la gama completa te permite recomendar con seguridad.",
-        "Empieza por el uso: trabajo, familia o ambos.",
-        "Relaciona cada línea con un perfil de cliente.",
-        "Ten a mano las diferencias clave entre versiones.",
-      ]),
-    },
-    {
-      id: "c-sinotruk-atributos",
-      title: "Principales atributos de vehículos comerciales",
-      description:
-        "Los atributos que más pesan en la decisión de un cliente de flota: capacidad, costo operativo y respaldo.",
-      brandIds: ["sinotruk"],
+        "Ruta, todo terreno y alto desempeño: en qué se diferencian y cómo recomendar el adecuado según el uso del cliente.",
+      brandIds: ["kia", "hyundai", "landking", "sinotruk"],
       category: "Producto",
-      durationSec: 125,
+      durationSec: 8,
       status: "published",
-      publishedAt: daysAgo(21, now),
-      videoRef: "demo://sinotruk/atributos.mp4",
-      thumb: 3,
-      subtitles: cues(125, [
-        "El cliente de flota compra una herramienta de trabajo.",
-        "Habla de capacidad de carga según su operación real.",
-        "El costo operativo importa tanto como el precio.",
-        "Destaca el respaldo de servicio y repuestos.",
-        "Pregunta siempre por rutas, cargas y frecuencia de uso.",
-      ]),
-    },
-    {
-      id: "c-kia-argumentos",
-      title: "Argumentos de venta y diferenciadores",
-      description:
-        "Cómo construir un argumento de venta a partir de lo que el cliente valora, y responder las objeciones más frecuentes.",
-      brandIds: ["kia"],
-      category: "Técnicas de venta",
-      durationSec: 100,
-      status: "published",
-      publishedAt: daysAgo(14, now),
-      videoRef: "demo://kia/argumentos.mp4",
+      publishedAt: daysAgo(0, now),
+      videoRef: "/indulearn/videos/tipos-de-neumaticos.mp4",
+      posterRef: "/indulearn/videos/tipos-de-neumaticos.jpg",
       thumb: 4,
-      subtitles: cues(100, [
-        "Un buen argumento parte de escuchar al cliente.",
-        "Identifica qué valora: diseño, equipamiento, garantía.",
-        "Convierte cada característica en un beneficio concreto.",
-        "Ante una objeción, pregunta antes de responder.",
-        "Resume los diferenciadores al cerrar la conversación.",
+      subtitles: cues(8, [
+        "El neumático de ruta prioriza confort y bajo ruido.",
+        "El todo terreno agarra en ripio, barro y piedras.",
+        "El de alto desempeño entrega precisión a mayor velocidad.",
       ]),
+      notes: [
+        "La pregunta clave es dónde y cómo maneja el cliente. Ciudad y carretera: neumático de ruta. Faenas, campo o caminos de ripio: todo terreno. Quien busca respuesta deportiva: alto desempeño.",
+        "Recuerda que la presión correcta está en la etiqueta del marco de la puerta del conductor y que un neumático con poca presión gasta más combustible y frena peor.",
+      ].join("\n\n"),
+      resources: [
+        {
+          id: "r-neumaticos-wikipedia",
+          kind: "link",
+          title: "Neumático (Wikipedia)",
+          url: "https://es.wikipedia.org/wiki/Neum%C3%A1tico",
+        },
+      ],
     },
-    {
-      id: "c-hyundai-atencion",
-      title: "Experiencia y atención al cliente",
-      description:
-        "Buenas prácticas para la recepción, el seguimiento y la entrega, pensadas para que el cliente quiera volver.",
-      brandIds: ["hyundai"],
-      category: "Atención al cliente",
-      durationSec: 90,
-      status: "published",
-      publishedAt: daysAgo(7, now),
-      videoRef: "demo://hyundai/atencion.mp4",
-      thumb: 5,
-      subtitles: cues(90, [
-        "La experiencia empieza antes de hablar del vehículo.",
-        "Recibe al cliente por su nombre y sin apuro.",
-        "Haz seguimiento en el plazo que prometiste.",
-        "La entrega es el momento que más se recuerda.",
-      ]),
-    },
-    // Videos reales de ejemplo, en public/indulearn/videos. Contenido técnico
-    // común a todas las marcas.
     {
       id: "c-motor-tecnico",
       title: "El motor explicado por un técnico",
@@ -396,23 +333,23 @@ type SeedComment = {
 
 /** Comentarios de ejemplo: alumnos, docentes (admins) y avisos de la plataforma. */
 const COMMENTS: SeedComment[] = [
-  { id: "cm-1", capsuleId: "c-kia-seguridad", userId: null, text: "Esta cápsula forma parte de la certificación de seguridad 2026. Complétala antes de fin de mes.", days: 10, likedBy: ["u-javier", "u-ignacio"] },
-  { id: "cm-2", capsuleId: "c-kia-seguridad", userId: "u-matias", text: "Muy claro lo del frenado autónomo, lo usé ayer con un cliente.", days: 8, likedBy: ["u-carolina", "u-paula", "u-javier"] },
-  { id: "cm-3", capsuleId: "c-kia-seguridad", userId: "u-carolina", replyTo: "cm-2", text: "¡Bien, Matías! Recuerden mostrar también la alerta de punto ciego en la prueba de manejo.", days: 7, likedBy: ["u-matias"] },
-  { id: "cm-4", capsuleId: "c-kia-seguridad", userId: "u-paula", replyTo: "cm-2", text: "A mí me pasó lo mismo, el cliente quedó convencido.", days: 6 },
-  { id: "cm-5", capsuleId: "c-kia-seguridad", userId: "u-javier", text: "¿Habrá una cápsula sobre el asistente de mantención de carril?", days: 3, likedBy: ["u-ignacio"] },
-  { id: "cm-6", capsuleId: "c-kia-seguridad", userId: "u-carolina", replyTo: "cm-5", text: "Sí, Javier, está en producción. La publicamos la próxima semana.", days: 2 },
-  { id: "cm-7", capsuleId: "c-kia-argumentos", userId: "u-ignacio", text: "El argumento de garantía es el que más me funciona en sala.", days: 2, likedBy: ["u-javier", "u-paula"] },
-  { id: "cm-8", capsuleId: "c-kia-argumentos", userId: "u-carolina", replyTo: "cm-7", text: "Sumen el costo de mantención a 5 años: suele cerrar la conversación.", days: 1, likedBy: ["u-ignacio"] },
-  { id: "cm-9", capsuleId: "c-kia-argumentos", userId: null, text: "¿Qué objeción escuchas más seguido? Cuéntanos y la incluimos en la próxima cápsula.", days: 1 },
-  { id: "cm-10", capsuleId: "c-hyundai-asistencia", userId: "u-fernanda", text: "Me ayudó a explicar el control crucero adaptativo sin enredarme.", days: 11, likedBy: ["u-camila"] },
-  { id: "cm-11", capsuleId: "c-hyundai-asistencia", userId: null, text: "Actualizamos los subtítulos de esta cápsula.", days: 5 },
-  { id: "cm-12", capsuleId: "c-hyundai-atencion", userId: "u-camila", text: "Practiqué el saludo inicial y los clientes lo notan.", days: 3, likedBy: ["u-fernanda"] },
-  { id: "cm-13", capsuleId: "c-landking-portafolio", userId: "u-diego", text: "Buen resumen del portafolio, lo compartí con el equipo de Antofagasta.", days: 5, likedBy: ["u-valentina"] },
-  { id: "cm-14", capsuleId: "c-landking-portafolio", userId: "u-carolina", replyTo: "cm-13", text: "Gracias, Diego. Pronto subimos la ficha comparativa por modelo.", days: 4 },
-  { id: "cm-15", capsuleId: "c-sinotruk-atributos", userId: "u-valentina", text: "El dato de consumo por tonelada es clave para flotas.", days: 7, likedBy: ["u-sebastian", "u-diego"] },
-  { id: "cm-16", capsuleId: "c-sinotruk-atributos", userId: "u-sebastian", text: "¿Dónde encuentro la ficha técnica en PDF?", days: 2 },
-  { id: "cm-17", capsuleId: "c-sinotruk-atributos", userId: "u-carolina", replyTo: "cm-16", text: "Está en la intranet comercial, sección Sinotruk › Fichas.", days: 1, likedBy: ["u-sebastian"] },
+  { id: "cm-1", capsuleId: "c-panel-instrumentos", userId: null, text: "Esta cápsula forma parte de la certificación de seguridad 2026. Complétala antes de fin de mes.", days: 10, likedBy: ["u-javier", "u-ignacio"] },
+  { id: "cm-2", capsuleId: "c-panel-instrumentos", userId: "u-matias", text: "Muy claro lo de los colores de las alertas, se lo expliqué ayer a un cliente en la entrega.", days: 8, likedBy: ["u-carolina", "u-paula", "u-javier"] },
+  { id: "cm-3", capsuleId: "c-panel-instrumentos", userId: "u-carolina", replyTo: "cm-2", text: "¡Bien, Matías! Recuerden mostrar también el testigo de presión de neumáticos.", days: 7, likedBy: ["u-matias"] },
+  { id: "cm-4", capsuleId: "c-panel-instrumentos", userId: "u-paula", replyTo: "cm-2", text: "A mí me pasó lo mismo, el cliente quedó mucho más tranquilo.", days: 6 },
+  { id: "cm-5", capsuleId: "c-panel-instrumentos", userId: "u-javier", text: "¿Habrá una cápsula sobre el asistente de mantención de carril?", days: 3, likedBy: ["u-ignacio"] },
+  { id: "cm-6", capsuleId: "c-panel-instrumentos", userId: "u-carolina", replyTo: "cm-5", text: "Sí, Javier, está en producción. La publicamos la próxima semana.", days: 2 },
+  { id: "cm-7", capsuleId: "c-motor-tecnico", userId: "u-ignacio", text: "Lo de la temperatura de operación me sirvió para explicar por qué no conviene exigir el motor en frío.", days: 2, likedBy: ["u-javier", "u-paula"] },
+  { id: "cm-8", capsuleId: "c-motor-tecnico", userId: "u-carolina", replyTo: "cm-7", text: "Sumen el costo de mantención a 5 años: un motor cuidado gasta menos y suele cerrar la conversación.", days: 1, likedBy: ["u-ignacio"] },
+  { id: "cm-9", capsuleId: "c-motor-tecnico", userId: null, text: "¿Qué pregunta sobre el motor escuchas más seguido? Cuéntanos y la incluimos en la próxima cápsula.", days: 1 },
+  { id: "cm-10", capsuleId: "c-frenos", userId: "u-fernanda", text: "Me ayudó a explicar el frenado de emergencia sin enredarme.", days: 11, likedBy: ["u-camila"] },
+  { id: "cm-11", capsuleId: "c-frenos", userId: null, text: "Actualizamos los subtítulos de esta cápsula.", days: 5 },
+  { id: "cm-12", capsuleId: "c-frenos", userId: "u-camila", text: "Lo mostré en la prueba de manejo y los clientes lo notan.", days: 3, likedBy: ["u-fernanda"] },
+  { id: "cm-13", capsuleId: "c-neumaticos", userId: "u-diego", text: "Buen resumen, lo compartí con el equipo de Antofagasta: allá casi todos preguntan por todo terreno.", days: 5, likedBy: ["u-valentina"] },
+  { id: "cm-14", capsuleId: "c-neumaticos", userId: "u-carolina", replyTo: "cm-13", text: "Gracias, Diego. Pronto subimos la tabla de medidas por modelo.", days: 4 },
+  { id: "cm-15", capsuleId: "c-motor-anatomia", userId: "u-valentina", text: "Ver las piezas una a una ayuda mucho para explicarle la mantención a clientes de flotas.", days: 7, likedBy: ["u-sebastian", "u-diego"] },
+  { id: "cm-16", capsuleId: "c-motor-anatomia", userId: "u-sebastian", text: "¿Dónde encuentro la ficha técnica en PDF?", days: 2 },
+  { id: "cm-17", capsuleId: "c-motor-anatomia", userId: "u-carolina", replyTo: "cm-16", text: "Está en el material complementario de «El motor explicado por un técnico».", days: 1, likedBy: ["u-sebastian"] },
 ];
 
 function buildComments(now: Date): Comment[] {
@@ -434,36 +371,35 @@ export function createSeedState(now: Date = new Date()): AppState {
     // pantallas de progreso tengan algo que mostrar desde el primer acceso.
     progress: {
       "u-matias": {
-        "c-kia-seguridad": entry(95, 9, 8, true, now),
-        "c-kia-argumentos": entry(38, 2, 1, false, now),
+        "c-panel-instrumentos": entry(8, 9, 8, true, now),
+        "c-motor-tecnico": entry(3, 2, 1, false, now),
       },
       "u-diego": {
-        "c-landking-portafolio": entry(80, 6, 5, true, now),
-        "c-sinotruk-atributos": entry(52, 3, 2, false, now),
+        "c-neumaticos": entry(8, 6, 5, true, now),
+        "c-motor-anatomia": entry(4, 3, 2, false, now),
       },
       "u-fernanda": {
-        "c-hyundai-asistencia": entry(110, 12, 11, true, now),
-        "c-hyundai-atencion": entry(90, 4, 3, true, now),
+        "c-frenos": entry(8, 12, 11, true, now),
+        "c-panel-instrumentos": entry(8, 4, 3, true, now),
       },
       "u-javier": {
-        "c-kia-seguridad": entry(95, 15, 14, true, now),
-        "c-hyundai-asistencia": entry(44, 6, 5, false, now),
+        "c-panel-instrumentos": entry(8, 15, 14, true, now),
+        "c-frenos": entry(3, 6, 5, false, now),
       },
       "u-valentina": {
-        "c-sinotruk-atributos": entry(125, 8, 7, true, now),
+        "c-motor-anatomia": entry(8, 8, 7, true, now),
       },
       "u-sebastian": {
-        "c-sinotruk-atributos": entry(30, 4, 3, false, now),
+        "c-motor-anatomia": entry(2, 4, 3, false, now),
       },
     },
-    saved: { "u-matias": ["c-kia-argumentos"] },
+    saved: { "u-matias": ["c-motor-tecnico"] },
     likes: {
-      "c-kia-seguridad": ["u-javier", "u-ignacio", "u-paula", "u-carolina"],
-      "c-kia-argumentos": ["u-matias", "u-javier"],
-      "c-hyundai-asistencia": ["u-fernanda", "u-camila", "u-javier"],
-      "c-hyundai-atencion": ["u-fernanda"],
-      "c-landking-portafolio": ["u-diego", "u-valentina"],
-      "c-sinotruk-atributos": ["u-valentina", "u-sebastian", "u-diego", "u-tomas"],
+      "c-panel-instrumentos": ["u-javier", "u-ignacio", "u-paula", "u-carolina"],
+      "c-motor-tecnico": ["u-matias", "u-javier"],
+      "c-frenos": ["u-fernanda", "u-camila", "u-javier"],
+      "c-neumaticos": ["u-diego", "u-valentina", "u-fernanda"],
+      "c-motor-anatomia": ["u-valentina", "u-sebastian", "u-diego", "u-tomas"],
     },
     comments: buildComments(now),
     settings: {
