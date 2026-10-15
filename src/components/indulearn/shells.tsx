@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
+  ChevronLeft,
   ChevronsUpDown,
   CirclePlay,
   Film,
@@ -102,19 +103,164 @@ function ShellSkeleton() {
 
 function SidebarLink({ item, isActive, onNavigate }: { item: NavItem; isActive: boolean; onNavigate?: () => void }) {
   const Icon = item.icon;
+  const isCollapsed = useContext(SidebarCollapsedContext);
   return (
     <Link
       href={item.href}
       onClick={onNavigate}
       aria-current={isActive ? "page" : undefined}
+      // Con el menú plegado sólo queda el icono: el title dice adónde lleva.
+      title={isCollapsed ? item.label : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        // 15px de margen centran el icono de 18px en el ancho plegado (48px).
+        "flex items-center gap-3 overflow-hidden whitespace-nowrap rounded-lg px-[15px] py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50",
         isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
       )}
     >
       <Icon className="size-[18px] shrink-0" aria-hidden />
-      {item.label}
+      <span className={SIDEBAR_FADE}>{item.label}</span>
     </Link>
+  );
+}
+
+// ── Menú lateral plegable (escritorio) ────────────────────────────────────
+
+const SIDEBAR_STORAGE_KEY = "indulearn:sidebar-collapsed";
+
+/** Curva y duración que comparten el menú y el contenido, para que se muevan juntos. */
+const SIDEBAR_MOTION = "duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none";
+
+/**
+ * Lo que sólo se ve con el menú abierto. Al plegar se apaga rápido, antes de
+ * que el ancho lo recorte; al abrir aparece con un pequeño retraso, cuando ya
+ * hay sitio.
+ */
+const SIDEBAR_FADE =
+  "min-w-0 truncate transition-opacity delay-100 duration-200 motion-reduce:transition-none group-data-[collapsed=true]/sidebar:pointer-events-none group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:delay-0 group-data-[collapsed=true]/sidebar:duration-100";
+
+const SidebarCollapsedContext = createContext(false);
+
+function isTypingTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+  );
+}
+
+/** Estado del menú plegado: se recuerda en este navegador y responde a ⌘B / Ctrl+B. */
+function useSidebarCollapsed() {
+  // Se lee al crear el estado y no en un efecto: así no se ve el menú abrirse
+  // y plegarse al cargar. En el servidor siempre se pinta el esqueleto.
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem(SIDEBAR_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const toggle = useCallback(() => setIsCollapsed((current) => !current), []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SIDEBAR_STORAGE_KEY, isCollapsed ? "1" : "0");
+    } catch {
+      // Sin almacenamiento el menú se pliega igual; sólo no se recuerda.
+    }
+  }, [isCollapsed]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== "b" || !(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) return;
+      if (isTypingTarget(event.target)) return;
+      event.preventDefault();
+      toggle();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [toggle]);
+
+  return { isCollapsed, toggle };
+}
+
+/** Margen del contenido, que acompaña al ancho del menú. */
+function sidebarOffset(isCollapsed: boolean): string {
+  return cn("transition-[padding-left]", SIDEBAR_MOTION, isCollapsed ? "lg:pl-[4.5rem]" : "lg:pl-64");
+}
+
+function DesktopSidebar({
+  isCollapsed,
+  onToggle,
+  homeHref,
+  badge,
+  footer,
+  children,
+}: {
+  isCollapsed: boolean;
+  onToggle: () => void;
+  homeHref: string;
+  badge?: React.ReactNode;
+  footer: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const label = isCollapsed ? "Expandir menú" : "Contraer menú";
+  return (
+    <aside
+      data-collapsed={isCollapsed}
+      className={cn(
+        "group/sidebar fixed inset-y-0 left-0 z-30 hidden flex-col border-r bg-background transition-[width] lg:flex",
+        SIDEBAR_MOTION,
+        isCollapsed ? "w-[4.5rem]" : "w-64",
+      )}
+    >
+      <SidebarCollapsedContext.Provider value={isCollapsed}>
+        <div className="flex h-16 shrink-0 items-center gap-2 overflow-hidden px-5">
+          <Link
+            href={homeHref}
+            aria-label="Inducampus online, ir al inicio"
+            className={cn(
+              "relative h-8 shrink-0 overflow-hidden rounded-lg outline-none transition-[width] focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              SIDEBAR_MOTION,
+              // 148px es el ancho del logotipo completo a 32px de alto.
+              isCollapsed ? "w-8" : "w-[148px]",
+            )}
+          >
+            <Logo
+              className={cn(
+                "absolute left-0 top-0 transition-opacity duration-200 motion-reduce:transition-none",
+                isCollapsed && "opacity-0",
+              )}
+            />
+            <Logo
+              compact
+              className={cn(
+                "absolute left-0 top-0 transition-opacity duration-200 motion-reduce:transition-none",
+                !isCollapsed && "opacity-0",
+              )}
+            />
+          </Link>
+          {badge && <span className={cn(SIDEBAR_FADE, "shrink-0")}>{badge}</span>}
+        </div>
+
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={label}
+          aria-expanded={!isCollapsed}
+          aria-keyshortcuts="Meta+B Control+B"
+          title={`${label} (⌘B)`}
+          className="absolute -right-3 top-5 z-10 grid size-6 place-items-center rounded-full border bg-background text-muted-foreground shadow-sm outline-none transition-[color,transform] after:absolute after:-inset-2 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-90"
+        >
+          <ChevronLeft
+            className={cn("size-3.5 transition-transform", SIDEBAR_MOTION, isCollapsed && "rotate-180")}
+            aria-hidden
+          />
+        </button>
+
+        {children}
+        <div className="p-3">{footer}</div>
+      </SidebarCollapsedContext.Provider>
+    </aside>
   );
 }
 
@@ -206,14 +352,18 @@ function AccountMenu({ user, placement }: { user: User; placement: "top" | "bott
           onClick={toggleMenu}
           aria-haspopup="menu"
           aria-expanded={isOpen}
-          className="flex w-full items-center gap-3 rounded-xl border bg-card p-2.5 text-left outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          className={cn(
+            "flex w-full items-center gap-3 overflow-hidden rounded-xl border bg-card p-2.5 text-left outline-none transition-[padding,background-color,border-color] hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            SIDEBAR_MOTION,
+            "group-data-[collapsed=true]/sidebar:border-transparent group-data-[collapsed=true]/sidebar:bg-transparent group-data-[collapsed=true]/sidebar:p-[5px]",
+          )}
         >
           <Avatar name={user.name} />
-          <span className="min-w-0 flex-1">
+          <span className={cn(SIDEBAR_FADE, "flex-1")}>
             <span className="block truncate text-sm font-semibold text-foreground">{user.name}</span>
             <span className="block truncate text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</span>
           </span>
-          <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          <ChevronsUpDown className={cn(SIDEBAR_FADE, "size-4 shrink-0 text-muted-foreground")} aria-hidden />
         </button>
       ) : (
         <button
@@ -419,17 +569,18 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
   const isImmersive = pathname.startsWith("/indulearn/explorar");
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const closeAccount = useCallback(() => setIsAccountOpen(false), []);
+  const sidebar = useSidebarCollapsed();
 
   if (!isReady || !user) return <ShellSkeleton />;
 
   return (
     <div className="min-h-dvh bg-background">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-background lg:flex">
-        <div className="flex h-16 items-center px-5">
-          <Link href={COLLABORATOR_HOME} className="rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
-            <Logo />
-          </Link>
-        </div>
+      <DesktopSidebar
+        isCollapsed={sidebar.isCollapsed}
+        onToggle={sidebar.toggle}
+        homeHref={COLLABORATOR_HOME}
+        footer={<AccountMenu user={user} placement="top" />}
+      >
         <nav aria-label="Principal" className="flex flex-1 flex-col gap-1 px-3 py-2">
           {COLLABORATOR_NAV.map((item) => (
             <SidebarLink key={item.href} item={item} isActive={isCurrent(pathname, item)} />
@@ -444,10 +595,7 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
             </>
           )}
         </nav>
-        <div className="p-3">
-          <AccountMenu user={user} placement="top" />
-        </div>
-      </aside>
+      </DesktopSidebar>
 
       {!isImmersive && (
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-card pl-2 pr-4 lg:hidden">
@@ -473,7 +621,7 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
 
       <AccountDrawer user={user} isOpen={isAccountOpen} onClose={closeAccount} />
 
-      <main className="pb-16 lg:pb-0 lg:pl-64">
+      <main className={cn("pb-16 lg:pb-0", sidebarOffset(sidebar.isCollapsed))}>
         {isImmersive ? children : <div className="mx-auto max-w-6xl px-4 py-6 lg:px-8 lg:py-8">{children}</div>}
       </main>
 
@@ -510,6 +658,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const { user, isReady } = useSession();
   const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const sidebar = useSidebarCollapsed();
 
   if (!isReady || !user) return <ShellSkeleton />;
 
@@ -549,18 +698,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-background">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-background lg:flex">
-        <div className="flex h-16 items-center gap-2 px-5">
-          <Logo />
+      <DesktopSidebar
+        isCollapsed={sidebar.isCollapsed}
+        onToggle={sidebar.toggle}
+        homeHref="/indulearn/admin"
+        badge={
           <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             Admin
           </span>
-        </div>
+        }
+        footer={<AccountMenu user={user} placement="top" />}
+      >
         {nav()}
-        <div className="p-3">
-          <AccountMenu user={user} placement="top" />
-        </div>
-      </aside>
+      </DesktopSidebar>
 
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-card px-4 lg:hidden">
         <div className="flex items-center gap-2">
@@ -587,7 +737,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <main className="lg:pl-64">
+      <main className={sidebarOffset(sidebar.isCollapsed)}>
         <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">{children}</div>
       </main>
     </div>
