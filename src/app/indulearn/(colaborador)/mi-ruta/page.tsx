@@ -9,6 +9,7 @@ import {
   Avatar,
   BrandBadge,
   Card,
+  Carousel,
   EmptyState,
   FilterChips,
   ProgressBar,
@@ -188,11 +189,11 @@ export default function MyRoutePage() {
             className="mt-4"
           />
         ) : (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
+          <Carousel label="Cápsulas recomendadas" className="mt-4">
             {filtered.map((capsule) => (
               <CapsuleCard key={capsule.id} capsule={capsule} state={state} userId={user.id} />
             ))}
-          </div>
+          </Carousel>
         )}
       </section>
     </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, CheckCircle2, CircleAlert, Info, X } from "lucide-react";
+import { Check, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Info, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { initialsOf } from "@/lib/indulearn/format";
@@ -353,6 +353,151 @@ export function FilterChips<T extends string>({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/** Distancia mínima (px) para que arrastrar con el mouse cuente como arrastre y no como clic. */
+const DRAG_THRESHOLD = 6;
+
+/**
+ * Fila horizontal desplazable. En pantallas táctiles se desliza con el dedo
+ * (scroll nativo con imán); con mouse se puede arrastrar y, si hay más
+ * elementos de los que caben, aparecen flechas a los lados.
+ */
+export function Carousel({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const trackId = useId();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ pointerId: number; startX: number; startScroll: number; hasMoved: boolean } | null>(null);
+  const suppressClickRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [edges, setEdges] = useState({ canPrev: false, canNext: false });
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const update = () =>
+      setEdges({
+        canPrev: track.scrollLeft > 1,
+        canNext: track.scrollLeft + track.clientWidth < track.scrollWidth - 1,
+      });
+    update();
+    track.addEventListener("scroll", update, { passive: true });
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(track);
+    // Los filtros cambian cuántas tarjetas hay sin cambiar el tamaño de la fila.
+    const mutationObserver = new MutationObserver(update);
+    mutationObserver.observe(track, { childList: true });
+    return () => {
+      track.removeEventListener("scroll", update);
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, []);
+
+  function scrollByPage(direction: 1 | -1) {
+    const track = trackRef.current;
+    if (!track) return;
+    const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    track.scrollBy({ left: direction * track.clientWidth * 0.85, behavior: isReduced ? "auto" : "smooth" });
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    // El tacto ya desliza de forma nativa; sólo el mouse necesita arrastre propio.
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScroll: event.currentTarget.scrollLeft,
+      hasMoved: false,
+    };
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const deltaX = event.clientX - drag.startX;
+    if (!drag.hasMoved) {
+      if (Math.abs(deltaX) < DRAG_THRESHOLD) return;
+      drag.hasMoved = true;
+      setIsDragging(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    event.currentTarget.scrollLeft = drag.startScroll - deltaX;
+  }
+
+  function handlePointerEnd(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    if (!drag.hasMoved) return;
+    // El clic que sigue al soltar no debe abrir la tarjeta sobre la que terminó el arrastre.
+    suppressClickRef.current = true;
+    setIsDragging(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }
+
+  function handleClickCapture(event: React.MouseEvent<HTMLDivElement>) {
+    if (!suppressClickRef.current) return;
+    suppressClickRef.current = false;
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  const arrowClassName =
+    "absolute top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center rounded-full border bg-card text-foreground shadow-md outline-none transition-[opacity,transform] hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-95 md:grid";
+
+  return (
+    <div role="region" aria-roledescription="carrusel" aria-label={label} className={cn("relative", className)}>
+      <div
+        ref={trackRef}
+        id={trackId}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onClickCapture={handleClickCapture}
+        onDragStart={(event) => event.preventDefault()}
+        className={cn(
+          "il-no-scrollbar relative -m-1 flex gap-3 overflow-x-auto scroll-px-1 overscroll-x-contain p-1 sm:gap-4",
+          "*:w-[44%] *:shrink-0 *:snap-start sm:*:w-[30%] xl:*:w-[23%]",
+          isDragging ? "cursor-grabbing select-none" : "snap-x snap-mandatory md:cursor-grab",
+        )}
+      >
+        {children}
+      </div>
+      {edges.canPrev && (
+        <button
+          type="button"
+          aria-label="Anteriores"
+          aria-controls={trackId}
+          onClick={() => scrollByPage(-1)}
+          className={cn(arrowClassName, "-left-4")}
+        >
+          <ChevronLeft className="size-5" aria-hidden />
+        </button>
+      )}
+      {edges.canNext && (
+        <button
+          type="button"
+          aria-label="Siguientes"
+          aria-controls={trackId}
+          onClick={() => scrollByPage(1)}
+          className={cn(arrowClassName, "-right-4")}
+        >
+          <ChevronRight className="size-5" aria-hidden />
+        </button>
+      )}
     </div>
   );
 }
