@@ -9,6 +9,7 @@ import {
   ChevronUp,
   CircleCheck,
   Heart,
+  Info,
   Link2,
   MessageCircle,
   SearchX,
@@ -34,7 +35,7 @@ import { cn } from "@/lib/utils";
 import { CapsuleThumb, capsuleHref } from "./capsule-card";
 import { CommentForm, CommentList, CommentsPanel } from "./capsule-comments";
 import { CapsulePlayer, RailButton } from "./capsule-player";
-import { BrandBadge, EmptyState, FilterChips, Modal, ProgressBar, StateBadge } from "./ui";
+import { EmptyState, FilterChips, Modal, ProgressBar, StateBadge } from "./ui";
 
 /**
  * Feed vertical de cápsulas.
@@ -56,6 +57,10 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
   // Pantallas anchas: tarjeta entre el video y el panel de información. Móvil y
   // escritorio angosto, donde no cabe: hoja modal.
   const [commentsView, setCommentsView] = useState<"panel" | "sheet" | null>(null);
+  // Abierta o cerrada para todo el feed: al pasar de cápsula se mantiene.
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const toggleInfo = useCallback(() => setIsInfoOpen((current) => !current), []);
+  const closeInfo = useCallback(() => setIsInfoOpen(false), []);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const didInitialScroll = useRef(false);
 
@@ -235,7 +240,20 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                         isActive={active?.id === capsule.id}
                         resumeAt={progress && !progress.completedAt ? progress.seconds : 0}
                         isCompleted={Boolean(progress?.completedAt)}
-                        hasOverlayInfo
+                        isInfoOpen={isInfoOpen}
+                        onCloseInfo={closeInfo}
+                        infoButton={
+                          <div className="lg:hidden">
+                            <RailButton
+                              label="Info"
+                              isPressed={isInfoOpen}
+                              onClick={toggleInfo}
+                              ariaLabel={isInfoOpen ? "Ocultar información" : "Ver información"}
+                            >
+                              <Info className="size-5" />
+                            </RailButton>
+                          </div>
+                        }
                         hasTopInset={brands.length > 1}
                         rail={
                           <div className="flex flex-col items-center gap-4 lg:hidden">
@@ -277,7 +295,15 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                     </div>
                     {/* Columna junto al video: flechas centradas respecto del video
                         y, abajo, las acciones. */}
-                    <div className="relative hidden h-full flex-col items-center justify-end pl-4 lg:flex">
+                    <div className="relative hidden h-full flex-col items-center justify-between pl-4 lg:flex">
+                      <SideAction
+                        label="Info"
+                        ariaLabel={isInfoOpen ? "Ocultar información" : "Ver información"}
+                        isPressed={isInfoOpen}
+                        onClick={toggleInfo}
+                      >
+                        <Info className="size-5" />
+                      </SideAction>
                       {capsules.length > 1 && (
                         <div className="absolute left-1/2 top-1/2 flex -translate-y-1/2 translate-x-[calc(-50%+8px)] flex-col gap-3">
                           <button
@@ -362,19 +388,9 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
 
         {active ? (
           <>
+            {/* Marcas, categoría, título y descripción se ven con el botón "Info" del video. */}
             <div className="flex flex-col gap-4 p-6">
-              <div className="flex flex-wrap items-center gap-1.5">
-                {brandsOf(active, state.brands).map((brand) => (
-                  <BrandBadge key={brand.id} brand={brand} />
-                ))}
-                <span className="text-xs text-muted-foreground">{active.category}</span>
-              </div>
-
-              <div>
-                <h1 className="text-lg font-semibold leading-snug text-foreground">{active.title}</h1>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{active.description}</p>
-              </div>
-
+              <h1 className="sr-only">{active.title}</h1>
               {renderProgress(active)}
 
               <div className="flex flex-wrap gap-2">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Captions, CaptionsOff, Check, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { Captions, CaptionsOff, Check, Pause, Play, Volume2, VolumeX, X } from "lucide-react";
 
 import { formatDuration } from "@/lib/indulearn/format";
 import { recordProgress } from "@/lib/indulearn/store";
@@ -22,8 +22,11 @@ type Props = {
   /** Segundo desde el que se retoma una cápsula en curso. */
   resumeAt: number;
   isCompleted: boolean;
-  /** Título y descripción superpuestos sobre el video (vista móvil). */
-  hasOverlayInfo?: boolean;
+  /** Tarjeta con marcas, categoría, título y descripción sobre el video. */
+  isInfoOpen?: boolean;
+  onCloseInfo?: () => void;
+  /** Botón que abre esa tarjeta, arriba a la derecha del video (móvil). */
+  infoButton?: React.ReactNode;
   /** Deja sitio arriba para los filtros que flotan sobre el video en móvil. */
   hasTopInset?: boolean;
   /** Acciones flotantes a la derecha (guardar, compartir…). */
@@ -52,7 +55,9 @@ export function CapsulePlayer({
   isActive,
   resumeAt,
   isCompleted,
-  hasOverlayInfo = false,
+  isInfoOpen = false,
+  onCloseInfo,
+  infoButton,
   hasTopInset = false,
   rail,
   className,
@@ -168,29 +173,61 @@ export function CapsulePlayer({
         )}
       </button>
 
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-x-0 top-0 z-20 flex flex-wrap items-center gap-1.5 bg-gradient-to-b from-black/55 to-transparent p-4 pb-10",
-          hasTopInset && "pt-14 lg:pt-4",
-        )}
-      >
-        {brands.map((brand) => (
-          <span
-            key={brand.id}
-            className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-2 py-0.5 text-xs font-medium backdrop-blur-sm"
-          >
-            <span className="size-2 rounded-full ring-1 ring-white/60" style={{ backgroundColor: brand.colorVar }} aria-hidden />
-            {brand.name}
-          </span>
-        ))}
-        <span className="rounded-full bg-black/45 px-2 py-0.5 text-xs backdrop-blur-sm">{capsule.category}</span>
-        {isCompleted && (
+      {isCompleted && !isInfoOpen && (
+        <div className={cn("pointer-events-none absolute left-4 top-4 z-20", hasTopInset && "top-14 lg:top-4")}>
           <span className="inline-flex items-center gap-1 rounded-full bg-success px-2 py-0.5 text-xs font-medium text-black">
             <Check className="size-3" aria-hidden />
             Completada
           </span>
-        )}
-      </div>
+        </div>
+      )}
+
+      {infoButton && (
+        <div className={cn("absolute right-3 top-3 z-30", hasTopInset && "top-14 lg:top-3")}>{infoButton}</div>
+      )}
+
+      {isInfoOpen && (
+        <div
+          role="region"
+          aria-label="Información de la cápsula"
+          className={cn(
+            "animate-il-info-in absolute left-3 top-3 z-30 max-h-[45%] overflow-y-auto rounded-2xl bg-black/65 p-4 pr-12 shadow-lg backdrop-blur-md",
+            // En móvil el botón que la abre queda a la derecha; en escritorio está fuera del video.
+            infoButton ? "right-[4.25rem] lg:right-3" : "right-3",
+            hasTopInset && "top-14 lg:top-3",
+          )}
+        >
+          <button
+            type="button"
+            onClick={onCloseInfo}
+            aria-label="Cerrar información"
+            title="Cerrar información"
+            className="absolute right-2 top-2 grid size-8 place-items-center rounded-full text-white/80 outline-none transition-colors hover:bg-white/15 hover:text-white focus-visible:ring-[3px] focus-visible:ring-white/70"
+          >
+            <X className="size-4" aria-hidden />
+          </button>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {brands.map((brand) => (
+              <span
+                key={brand.id}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2 py-0.5 text-xs font-medium"
+              >
+                <span className="size-2 rounded-full ring-1 ring-white/60" style={{ backgroundColor: brand.colorVar }} aria-hidden />
+                {brand.name}
+              </span>
+            ))}
+            <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs">{capsule.category}</span>
+            {isCompleted && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-success px-2 py-0.5 text-xs font-medium text-black">
+                <Check className="size-3" aria-hidden />
+                Completada
+              </span>
+            )}
+          </div>
+          <h2 className="mt-3 text-base font-semibold leading-snug">{capsule.title}</h2>
+          <p className="mt-1 text-sm leading-relaxed text-white/85">{capsule.description}</p>
+        </div>
+      )}
 
       {rail && <div className="absolute bottom-36 right-3 z-30 flex flex-col items-center gap-4">{rail}</div>}
 
@@ -201,14 +238,6 @@ export function CapsulePlayer({
             <p className="mx-auto w-fit max-w-full rounded-md bg-black/70 px-2.5 py-1 text-center text-sm leading-snug">
               {cue}
             </p>
-          </div>
-        )}
-
-        {hasOverlayInfo && (
-          // En escritorio esta información ya está en el panel lateral.
-          <div className={cn("min-w-0 lg:hidden", rail && "pr-14")}>
-            <h2 className="line-clamp-2 text-base font-semibold leading-snug">{capsule.title}</h2>
-            <p className="mt-1 line-clamp-2 text-sm text-white/80">{capsule.description}</p>
           </div>
         )}
 
