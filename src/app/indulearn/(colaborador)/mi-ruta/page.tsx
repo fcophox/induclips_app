@@ -222,9 +222,11 @@ export default function MyRoutePage() {
         )}
       </section>
 
-      <MyCapsules state={state} user={user} brands={brands} capsules={capsules} />
-
-      <WatchHistory state={state} user={user} capsules={capsules} />
+      {/* Lado a lado sólo con ancho de sobra: más angosto, la fila de cada cápsula se comprime. */}
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:items-start">
+        <MyCapsules state={state} user={user} brands={brands} capsules={capsules} />
+        <WatchHistory state={state} user={user} capsules={capsules} className="xl:sticky xl:top-8" />
+      </div>
     </div>
   );
 }
@@ -326,14 +328,24 @@ function MyCapsules({
   );
 }
 
-function WatchHistory({ state, user, capsules }: { state: AppState; user: User; capsules: Capsule[] }) {
+function WatchHistory({
+  state,
+  user,
+  capsules,
+  className,
+}: {
+  state: AppState;
+  user: User;
+  capsules: Capsule[];
+  className?: string;
+}) {
   const history = capsules
     .map((capsule) => ({ capsule, progress: progressOf(state, user.id, capsule.id) }))
     .filter((item) => item.progress !== null)
     .sort((a, b) => b.progress!.updatedAt.localeCompare(a.progress!.updatedAt));
 
   return (
-    <section aria-labelledby="historial">
+    <section aria-labelledby="historial" className={className}>
       <h2 id="historial" className="text-base font-semibold text-foreground">
         Historial de visualización
       </h2>
