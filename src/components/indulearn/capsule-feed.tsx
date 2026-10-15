@@ -9,6 +9,7 @@ import {
   ChevronUp,
   CircleCheck,
   Heart,
+  Info,
   Link2,
   MessageCircle,
   SearchX,
@@ -56,6 +57,16 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
   // Pantallas anchas: tarjeta entre el video y el panel de información. Móvil y
   // escritorio angosto, donde no cabe: hoja modal.
   const [commentsView, setCommentsView] = useState<"panel" | "sheet" | null>(null);
+  // Panel de información (escritorio): cerrado por defecto para dejar el video
+  // solo; se recuerda en este navegador si la persona lo deja abierto.
+  const [isInfoOpen, setIsInfoOpen] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem(INFO_PANEL_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
   const scrollerRef = useRef<HTMLDivElement>(null);
   const didInitialScroll = useRef(false);
 
@@ -66,11 +77,24 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
   );
   const brands = brandsForUser(state, user).filter((brand) => brand.status === "active");
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(INFO_PANEL_STORAGE_KEY, isInfoOpen ? "1" : "0");
+    } catch {
+      // Sin almacenamiento el panel funciona igual; sólo no se recuerda.
+    }
+  }, [isInfoOpen]);
+
   // Enlace a una cápsula que existe pero no es de sus marcas.
   const isBlocked =
     initialCapsuleId !== undefined &&
     !allowed.some((c) => c.id === initialCapsuleId) &&
     state.capsules.some((c) => c.id === initialCapsuleId);
+
+  // El aviso de enlace bloqueado vive en el panel: se abre para que no pase inadvertido.
+  useEffect(() => {
+    if (isBlocked) setIsInfoOpen(true);
+  }, [isBlocked]);
 
   useEffect(() => {
     if (isBlocked) toast("Ese enlace es de una marca para la que no tienes autorización.", "info");
@@ -275,11 +299,11 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                         }
                       />
                     </div>
-                    {/* Columna junto al video: flechas centradas respecto del video
-                        y, abajo, las acciones. */}
-                    <div className="relative hidden h-full flex-col items-center justify-end pl-4 lg:flex">
+                    {/* Columna junto al video: abajo, las acciones; las flechas se
+                        centran en el espacio que queda encima, así nunca las tapan. */}
+                    <div className="hidden h-full flex-col items-center pl-4 lg:flex">
                       {capsules.length > 1 && (
-                        <div className="absolute left-1/2 top-1/2 flex -translate-y-1/2 translate-x-[calc(-50%+8px)] flex-col gap-3">
+                        <div className="flex min-h-0 flex-1 flex-col justify-center gap-3 py-4">
                           <button
                             type="button"
                             aria-label="Cápsula anterior"
@@ -300,7 +324,7 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                           </button>
                         </div>
                       )}
-                      <div className="flex flex-col items-center gap-5 pb-4">
+                      <div className="mt-auto flex flex-col items-center gap-5 pb-4">
                         <SideAction
                           label={formatNumber(likeCount)}
                           ariaLabel={liked ? "Quitar me gusta" : "Me gusta"}
@@ -323,6 +347,14 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                           onClick={() => save(capsule)}
                         >
                           {saved ? <BookmarkCheck className="size-5" /> : <Bookmark className="size-5" />}
+                        </SideAction>
+                        <SideAction
+                          label="Info"
+                          ariaLabel={isInfoOpen ? "Ocultar información" : "Ver información"}
+                          isPressed={isInfoOpen}
+                          onClick={() => setIsInfoOpen((current) => !current)}
+                        >
+                          <Info className="size-5" />
                         </SideAction>
                       </div>
                     </div>
@@ -353,91 +385,108 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
         </p>
       </div>
 
-      <aside className="hidden w-[320px] shrink-0 flex-col overflow-y-auto border-l bg-card lg:flex 2xl:w-[380px]">
-        {isBlocked && (
-          <p className="border-b bg-warn-surface px-6 py-3 text-sm text-foreground">
-            El enlace apunta a una cápsula de una marca para la que no tienes autorización.
-          </p>
+      {/* El contenedor anima el ancho; el panel conserva el suyo y queda pegado a
+          la izquierda, así se descubre de izquierda a derecha al abrirse. */}
+      <div
+        className={cn(
+          "hidden shrink-0 overflow-hidden transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none lg:block",
+          isInfoOpen ? "w-[320px] 2xl:w-[380px]" : "w-0",
         )}
+      >
+        <aside
+          id={INFO_PANEL_ID}
+          aria-label="Información de la cápsula"
+          inert={!isInfoOpen}
+          className={cn(
+            "flex h-full w-[320px] flex-col overflow-y-auto border-l bg-card transition-opacity duration-200 motion-reduce:transition-none 2xl:w-[380px]",
+            isInfoOpen ? "opacity-100 delay-75" : "opacity-0",
+          )}
+        >
+          {isBlocked && (
+            <p className="border-b bg-warn-surface px-6 py-3 text-sm text-foreground">
+              El enlace apunta a una cápsula de una marca para la que no tienes autorización.
+            </p>
+          )}
 
-        {active ? (
-          <>
-            <div className="flex flex-col gap-4 p-6">
-              <div className="flex flex-wrap items-center gap-1.5">
-                {brandsOf(active, state.brands).map((brand) => (
-                  <BrandBadge key={brand.id} brand={brand} />
-                ))}
-                <span className="text-xs text-muted-foreground">{active.category}</span>
-              </div>
+          {active ? (
+            <>
+              <div className="flex flex-col gap-4 p-6">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {brandsOf(active, state.brands).map((brand) => (
+                    <BrandBadge key={brand.id} brand={brand} />
+                  ))}
+                  <span className="text-xs text-muted-foreground">{active.category}</span>
+                </div>
 
-              <div>
-                <h1 className="text-lg font-semibold leading-snug text-foreground">{active.title}</h1>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{active.description}</p>
-              </div>
+                <div>
+                  <h1 className="text-lg font-semibold leading-snug text-foreground">{active.title}</h1>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{active.description}</p>
+                </div>
 
-              {renderProgress(active)}
+                {renderProgress(active)}
 
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => save(active)}
-                  aria-pressed={isSaved(state, user.id, active.id)}
-                >
-                  {isSaved(state, user.id, active.id) ? <BookmarkCheck /> : <Bookmark />}
-                  {isSaved(state, user.id, active.id) ? "Guardada" : "Guardar"}
-                </Button>
-                {state.settings.allowShare && (
-                  <Button variant="outline" size="sm" onClick={() => share(active)}>
-                    <Link2 />
-                    Compartir enlace
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => save(active)}
+                    aria-pressed={isSaved(state, user.id, active.id)}
+                  >
+                    {isSaved(state, user.id, active.id) ? <BookmarkCheck /> : <Bookmark />}
+                    {isSaved(state, user.id, active.id) ? "Guardada" : "Guardar"}
                   </Button>
-                )}
+                  {state.settings.allowShare && (
+                    <Button variant="outline" size="sm" onClick={() => share(active)}>
+                      <Link2 />
+                      Compartir enlace
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="border-t p-6">
-              <h2 className="text-sm font-semibold text-foreground">Más cápsulas</h2>
-              <ul className="mt-3 flex flex-col gap-1">
-                {capsules.map((capsule, index) => (
-                  <li key={capsule.id}>
-                    <button
-                      type="button"
-                      onClick={() => scrollToIndex(index)}
-                      aria-current={capsule.id === active.id ? "true" : undefined}
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-lg p-2 text-left outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                        capsule.id === active.id && "bg-accent",
-                      )}
-                    >
-                      <CapsuleThumb capsule={capsule} className="w-14 shrink-0" />
-                      <span className="min-w-0 flex-1">
-                        <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
-                          {capsule.title}
+              <div className="border-t p-6">
+                <h2 className="text-sm font-semibold text-foreground">Más cápsulas</h2>
+                <ul className="mt-3 flex flex-col gap-1">
+                  {capsules.map((capsule, index) => (
+                    <li key={capsule.id}>
+                      <button
+                        type="button"
+                        onClick={() => scrollToIndex(index)}
+                        aria-current={capsule.id === active.id ? "true" : undefined}
+                        className={cn(
+                          "flex w-full items-center gap-3 rounded-lg p-2 text-left outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                          capsule.id === active.id && "bg-accent",
+                        )}
+                      >
+                        <CapsuleThumb capsule={capsule} className="w-14 shrink-0" />
+                        <span className="min-w-0 flex-1">
+                          <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
+                            {capsule.title}
+                          </span>
+                          <span className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                            {brandsOf(capsule, state.brands)
+                              .map((brand) => brand.name)
+                              .join(" · ")}
+                            <span aria-hidden>·</span>
+                            {formatDuration(capsule.durationSec)}
+                          </span>
                         </span>
-                        <span className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                          {brandsOf(capsule, state.brands)
-                            .map((brand) => brand.name)
-                            .join(" · ")}
-                          <span aria-hidden>·</span>
-                          {formatDuration(capsule.durationSec)}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          ) : (
+            <div className="p-6 text-sm text-muted-foreground">
+              Sin cápsulas con este filtro.{" "}
+              <Link href="/indulearn/mi-ruta" className="font-medium text-primary underline-offset-4 hover:underline">
+                Ir a mi ruta
+              </Link>
             </div>
-          </>
-        ) : (
-          <div className="p-6 text-sm text-muted-foreground">
-            Sin cápsulas con este filtro.{" "}
-            <Link href="/indulearn/mi-ruta" className="font-medium text-primary underline-offset-4 hover:underline">
-              Ir a mi ruta
-            </Link>
-          </div>
-        )}
-      </aside>
+          )}
+        </aside>
+      </div>
 
       {active && (
         <Modal
@@ -477,6 +526,9 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
     );
   }
 }
+
+const INFO_PANEL_ID = "capsule-info-panel";
+const INFO_PANEL_STORAGE_KEY = "indulearn:feed-info-open";
 
 /** Círculo común a las flechas y las acciones junto al video en escritorio. */
 const SIDE_CIRCLE =
