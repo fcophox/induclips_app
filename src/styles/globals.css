@@ -208,20 +208,3 @@
 @utility animate-il-panel-in {
   animation: il-panel-in 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-
-/* Tarjeta de información sobre el video: baja apenas desde el botón que la abre. */
-@keyframes il-info-in {
-  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@utility animate-il-info-in {
-  animation: il-info-in 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transform-origin: top right;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-il-info-in {
-    animation: none;
-  }
-}
