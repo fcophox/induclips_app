@@ -2,7 +2,7 @@
 
 /** Tokens presentes en ambos temas (tipografía, radios, espaciado…). */
 export const SHARED_TOKENS = {
-  "--font-sans-stack": "var(--font-sansation), system-ui, sans-serif",
+  "--font-sans-stack": "var(--font-roboto), system-ui, sans-serif",
   "--font-mono-stack": "ui-monospace, SFMono-Regular, Menlo, monospace",
   "--radius": "0.625rem",
   "--spacing-xs": "0.25rem",

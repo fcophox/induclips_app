@@ -90,7 +90,7 @@ sidebar. El nombre CSS se deriva del grupo en `tokens.yml`:
 > dentro de `@theme`, no en `:root`, que es lo que permite que `lg:` en
 > Tailwind responda a lo que dice el YAML.
 
-`--font-sans-stack` referencia `--font-sansation`, que inyecta `next/font` en el
+`--font-sans-stack` referencia `--font-roboto`, que inyecta `next/font` en el
 layout raíz. Si cambias esa variable en `layout.tsx`, cámbiala también en
 `fonts.sans`.
 

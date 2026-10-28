@@ -116,8 +116,8 @@ base:
   colors.chart-6.light: "#008300"
   colors.chart-6.dark: "#008300"
 
-  # Tipografía — `--font-sansation` lo inyecta next/font en el layout raíz
-  fonts.sans: "var(--font-sansation), system-ui, sans-serif"
+  # Tipografía — `--font-roboto` lo inyecta next/font en el layout raíz
+  fonts.sans: "var(--font-roboto), system-ui, sans-serif"
   fonts.mono: "ui-monospace, SFMono-Regular, Menlo, monospace"
 
   # Radio base — los derivados (sm/md/lg/xl) se calculan en globals.css
