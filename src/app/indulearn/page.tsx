@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, BarChart3, CirclePlay, ShieldCheck } from "lucide-react";
 
 import { homeFor, ROLE_LABEL } from "@/components/indulearn/shells";
-import { Avatar, BrandBadge, Field, Logo, Skeleton } from "@/components/indulearn/ui";
+import { Avatar, BrandBadge, Field, Logo, LogoLoader } from "@/components/indulearn/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -57,11 +57,7 @@ export default function LoginPage() {
   );
 
   if (!hydrated || current) {
-    return (
-      <div className="grid min-h-dvh place-items-center bg-background p-6" aria-busy="true">
-        <Skeleton className="h-96 w-full max-w-sm" />
-      </div>
-    );
+    return <LogoLoader />;
   }
 
   return (

@@ -34,7 +34,7 @@ import type { Role, User } from "@/lib/indulearn/types";
 import { THEME_STORAGE_KEY, applyTheme, type ThemeMode } from "@/lib/theme/mode";
 import { cn } from "@/lib/utils";
 
-import { Avatar, BrandBadge, EmptyState, Logo, Skeleton } from "./ui";
+import { Avatar, BrandBadge, EmptyState, Logo, LogoLoader } from "./ui";
 
 type NavItem = { href: string; label: string; shortLabel?: string; icon: LucideIcon; isExact?: boolean };
 
@@ -84,21 +84,6 @@ function useSession(): { user: User | null; isReady: boolean } {
   }, [hydrated, user, router]);
 
   return { user, isReady: hydrated && user !== null };
-}
-
-function ShellSkeleton() {
-  return (
-    <div className="mx-auto flex min-h-dvh max-w-6xl flex-col gap-6 px-4 py-8 lg:px-8" aria-busy="true">
-      <span className="sr-only">Cargando…</span>
-      <Skeleton className="h-8 w-56" />
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-24" />
-        ))}
-      </div>
-      <Skeleton className="h-64" />
-    </div>
-  );
 }
 
 function SidebarLink({ item, isActive, onNavigate }: { item: NavItem; isActive: boolean; onNavigate?: () => void }) {
@@ -583,7 +568,7 @@ export function CollaboratorShell({ children }: { children: React.ReactNode }) {
   const closeAccount = useCallback(() => setIsAccountOpen(false), []);
   const sidebar = useSidebarCollapsed();
 
-  if (!isReady || !user) return <ShellSkeleton />;
+  if (!isReady || !user) return <LogoLoader />;
 
   return (
     <div className="min-h-dvh bg-background">
@@ -672,7 +657,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const sidebar = useSidebarCollapsed();
 
-  if (!isReady || !user) return <ShellSkeleton />;
+  if (!isReady || !user) return <LogoLoader />;
 
   // La navegación administrativa no existe para un colaborador: si llega por
   // URL, ve un aviso y no el panel.

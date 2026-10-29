@@ -36,6 +36,18 @@ export function Logo({ className, compact = false }: { className?: string; compa
   );
 }
 
+/** Pantalla de carga: el isotipo centrado, en vez de un bloque gris. */
+export function LogoLoader() {
+  return (
+    <div className="grid min-h-dvh place-items-center bg-background" aria-busy="true">
+      <span className="sr-only">Cargando…</span>
+      <span className="animate-il-loader grid size-14 place-items-center overflow-hidden rounded-2xl shadow-lg" aria-hidden>
+        <BrandMark className="size-full" />
+      </span>
+    </div>
+  );
+}
+
 export function Avatar({ name, className }: { name: string; className?: string }) {
   return (
     <span
