@@ -389,7 +389,7 @@ export function AmbientGlow({ capsule, isActive, className }: { capsule: Capsule
       aria-hidden
       className={cn(
         "pointer-events-none absolute inset-0 -z-10 scale-x-125 scale-y-110 blur-[80px] saturate-150 transition-opacity duration-700 motion-reduce:transition-none",
-        isActive ? "opacity-50 dark:opacity-40" : "opacity-0",
+        isActive ? "opacity-50 dark:opacity-20" : "opacity-0",
         className,
       )}
     >
