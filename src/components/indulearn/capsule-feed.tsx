@@ -36,7 +36,7 @@ import { CapsuleThumb, capsuleHref } from "./capsule-card";
 import { CommentForm, CommentList, CommentsPanel } from "./capsule-comments";
 import { ResourceList, TeacherNotes } from "./capsule-resources";
 import { RichText } from "./rich-text";
-import { CapsulePlayer, RailButton } from "./capsule-player";
+import { AmbientGlow, CapsulePlayer, RailButton } from "./capsule-player";
 import { BrandBadge, EmptyState, FilterChips, Modal, ProgressBar, StateBadge } from "./ui";
 
 /**
@@ -252,54 +252,58 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                         "min-[90rem]:max-h-[calc((100cqw-400px)*16/9)] 2xl:max-h-[calc((100cqw-464px)*16/9)]",
                     )}
                   >
-                    <div className="h-full w-full lg:aspect-[9/16] lg:w-auto lg:overflow-hidden lg:rounded-2xl lg:shadow-xl">
-                      <CapsulePlayer
-                        capsule={capsule}
-                        userId={user.id}
-                        brands={brandsOf(capsule, state.brands)}
-                        settings={state.settings}
-                        isActive={active?.id === capsule.id}
-                        resumeAt={progress && !progress.completedAt ? progress.seconds : 0}
-                        isCompleted={Boolean(progress?.completedAt)}
-                        hasOverlayInfo
-                        hasTopInset={brands.length > 1}
-                        rail={
-                          <div className="flex flex-col items-center gap-4 lg:hidden">
-                            <RailButton
-                              label={formatNumber(likeCount)}
-                              isPressed={liked}
-                              onClick={() => like(capsule)}
-                              ariaLabel={liked ? "Quitar me gusta" : "Me gusta"}
-                            >
-                              <Heart className={cn("size-5", liked && "fill-current text-red-500")} />
-                            </RailButton>
-                            <RailButton
-                              label={formatNumber(commentCount)}
-                              onClick={() => setCommentsView("sheet")}
-                              ariaLabel={`Ver ${commentCount} comentarios`}
-                            >
-                              <MessageCircle className="size-5" />
-                            </RailButton>
-                            <RailButton
-                              label={saved ? "Guardada" : "Guardar"}
-                              isPressed={saved}
-                              onClick={() => save(capsule)}
-                            >
-                              {saved ? <BookmarkCheck className="size-5" /> : <Bookmark className="size-5" />}
-                            </RailButton>
-                            {state.settings.allowShare && (
-                              <RailButton label="Compartir" onClick={() => share(capsule)}>
-                                <Link2 className="size-5" />
+                    <div className="relative isolate h-full w-full lg:aspect-[9/16] lg:w-auto">
+                      {/* En móvil el video ocupa toda la pantalla: no hay dónde brillar. */}
+                      <AmbientGlow capsule={capsule} isActive={active?.id === capsule.id} className="hidden lg:block" />
+                      <div className="h-full w-full overflow-hidden lg:rounded-2xl lg:shadow-xl">
+                        <CapsulePlayer
+                          capsule={capsule}
+                          userId={user.id}
+                          brands={brandsOf(capsule, state.brands)}
+                          settings={state.settings}
+                          isActive={active?.id === capsule.id}
+                          resumeAt={progress && !progress.completedAt ? progress.seconds : 0}
+                          isCompleted={Boolean(progress?.completedAt)}
+                          hasOverlayInfo
+                          hasTopInset={brands.length > 1}
+                          rail={
+                            <div className="flex flex-col items-center gap-4 lg:hidden">
+                              <RailButton
+                                label={formatNumber(likeCount)}
+                                isPressed={liked}
+                                onClick={() => like(capsule)}
+                                ariaLabel={liked ? "Quitar me gusta" : "Me gusta"}
+                              >
+                                <Heart className={cn("size-5", liked && "fill-current text-red-500")} />
                               </RailButton>
-                            )}
-                            {!progress?.completedAt && (
-                              <RailButton label="Completar" onClick={() => complete(capsule)}>
-                                <CircleCheck className="size-5" />
+                              <RailButton
+                                label={formatNumber(commentCount)}
+                                onClick={() => setCommentsView("sheet")}
+                                ariaLabel={`Ver ${commentCount} comentarios`}
+                              >
+                                <MessageCircle className="size-5" />
                               </RailButton>
-                            )}
-                          </div>
-                        }
-                      />
+                              <RailButton
+                                label={saved ? "Guardada" : "Guardar"}
+                                isPressed={saved}
+                                onClick={() => save(capsule)}
+                              >
+                                {saved ? <BookmarkCheck className="size-5" /> : <Bookmark className="size-5" />}
+                              </RailButton>
+                              {state.settings.allowShare && (
+                                <RailButton label="Compartir" onClick={() => share(capsule)}>
+                                  <Link2 className="size-5" />
+                                </RailButton>
+                              )}
+                              {!progress?.completedAt && (
+                                <RailButton label="Completar" onClick={() => complete(capsule)}>
+                                  <CircleCheck className="size-5" />
+                                </RailButton>
+                              )}
+                            </div>
+                          }
+                        />
+                      </div>
                     </div>
                     {/* Columna junto al video: arriba, "Info" a la altura del borde
                         superior del video; abajo, las acciones; las flechas, siempre

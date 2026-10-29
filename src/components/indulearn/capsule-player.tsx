@@ -6,7 +6,7 @@ import { Captions, CaptionsOff, Check, Pause, Play, Volume2, VolumeX } from "luc
 import { formatDuration } from "@/lib/indulearn/format";
 import { richTextToPlain } from "@/lib/indulearn/rich-text";
 import { recordProgress } from "@/lib/indulearn/store";
-import { YOUTUBE_HOST, loadYouTubeApi, parseYouTubeId, type YouTubePlayer } from "@/lib/indulearn/youtube";
+import { YOUTUBE_HOST, loadYouTubeApi, parseYouTubeId, youTubeThumbnail, type YouTubePlayer } from "@/lib/indulearn/youtube";
 import type { Brand, Capsule, Settings } from "@/lib/indulearn/types";
 import { cn } from "@/lib/utils";
 
@@ -371,6 +371,34 @@ export function CapsulePlayer({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Brillo ambiental detrás del reproductor, como el "modo ambiente" de YouTube:
+ * la portada, ampliada y muy difuminada, desborda el video y tiñe el fondo con
+ * sus colores. Va como hermano del reproductor (que recorta lo que sobresale).
+ */
+export function AmbientGlow({ capsule, isActive, className }: { capsule: Capsule; isActive: boolean; className?: string }) {
+  const youTubeId = parseYouTubeId(capsule.videoRef);
+  const source = capsule.posterRef ?? (youTubeId ? youTubeThumbnail(youTubeId) : undefined);
+
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute inset-0 -z-10 scale-x-125 scale-y-110 blur-[80px] saturate-150 transition-opacity duration-700 motion-reduce:transition-none",
+        isActive ? "opacity-50 dark:opacity-40" : "opacity-0",
+        className,
+      )}
+    >
+      {source ? (
+        // eslint-disable-next-line @next/next/no-img-element -- capa decorativa; next/image no aporta aquí
+        <img src={source} alt="" className="size-full rounded-2xl object-cover" loading="lazy" decoding="async" />
+      ) : (
+        <CapsuleArt capsule={capsule} className="rounded-2xl" />
+      )}
     </div>
   );
 }
