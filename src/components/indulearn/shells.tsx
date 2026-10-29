@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   ChevronsUpDown,
+  CircleChevronRight,
   CirclePlay,
   Film,
   House,
@@ -13,8 +14,6 @@ import {
   LogOut,
   Menu,
   Moon,
-  PanelLeftClose,
-  PanelLeftOpen,
   Repeat,
   Route,
   Settings,
@@ -216,6 +215,29 @@ function DesktopSidebar({
     >
       <SidebarCollapsedContext.Provider value={isCollapsed}>
         <div className="group/header relative flex h-16 shrink-0 items-center gap-2 overflow-hidden px-5">
+          {/* Abierto, la hamburguesa va a la izquierda del logotipo; plegado, el
+              botón de expandir aparece encima del isotipo sólo al pasar por
+              encima (o al llegar con el teclado). */}
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label={label}
+            aria-expanded={!isCollapsed}
+            aria-keyshortcuts="Meta+B Control+B"
+            title={`${label} (⌘B)`}
+            className={cn(
+              "grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground outline-none transition-[color,background-color,opacity,scale] duration-200 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-90 motion-reduce:transition-none",
+              isCollapsed
+                ? "absolute left-5 top-4 z-10 scale-75 opacity-0 group-hover/header:scale-100 group-hover/header:opacity-100 focus-visible:scale-100 focus-visible:opacity-100"
+                : "-ml-2 hover:bg-muted",
+            )}
+          >
+            {isCollapsed ? (
+              <CircleChevronRight className="size-6" strokeWidth={1.75} aria-hidden />
+            ) : (
+              <Menu className="size-5" aria-hidden />
+            )}
+          </button>
           <Link
             href={homeHref}
             aria-label="Inducampus online, ir al inicio"
@@ -245,24 +267,6 @@ function DesktopSidebar({
           </Link>
           {badge && <span className={cn(SIDEBAR_FADE, "shrink-0")}>{badge}</span>}
 
-          {/* Abierto, el botón va al final de la cabecera; plegado, aparece encima
-              del isotipo sólo al pasar por encima (o al llegar con el teclado). */}
-          <button
-            type="button"
-            onClick={onToggle}
-            aria-label={label}
-            aria-expanded={!isCollapsed}
-            aria-keyshortcuts="Meta+B Control+B"
-            title={`${label} (⌘B)`}
-            className={cn(
-              "grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground outline-none transition-[color,background-color,opacity,scale] duration-200 hover:bg-muted hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-90 motion-reduce:transition-none",
-              isCollapsed
-                ? "absolute left-5 top-4 scale-75 opacity-0 group-hover/header:scale-100 group-hover/header:opacity-100 focus-visible:scale-100 focus-visible:opacity-100"
-                : "ml-auto",
-            )}
-          >
-            {isCollapsed ? <PanelLeftOpen className="size-4" aria-hidden /> : <PanelLeftClose className="size-4" aria-hidden />}
-          </button>
         </div>
 
         {children}
