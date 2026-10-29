@@ -312,7 +312,7 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                       <SideAction
                         label="Info"
                         ariaLabel={isInfoOpen ? "Ocultar información" : "Ver información"}
-                        isPressed={isInfoOpen}
+                        isPanelOpen={isInfoOpen}
                         onClick={() => setIsInfoOpen((current) => !current)}
                       >
                         <Info className="size-5" />
@@ -351,7 +351,7 @@ export function CapsuleFeed({ user, initialCapsuleId }: { user: User; initialCap
                         <SideAction
                           label={formatNumber(commentCount)}
                           ariaLabel={`Comentarios (${commentCount})`}
-                          isPressed={commentsView === "panel" && active?.id === capsule.id}
+                          isPanelOpen={commentsView === "panel" && active?.id === capsule.id}
                           onClick={() => toggleComments(capsule)}
                         >
                           <MessageCircle className="size-5" />
@@ -549,12 +549,15 @@ function SideAction({
   label,
   ariaLabel,
   isPressed,
+  isPanelOpen,
   onClick,
   children,
 }: {
   label: string;
   ariaLabel?: string;
   isPressed?: boolean;
+  /** Abre un panel (info, comentarios): mientras está abierto, el botón se destaca. */
+  isPanelOpen?: boolean;
   onClick: () => void;
   children: React.ReactNode;
 }) {
@@ -562,15 +565,21 @@ function SideAction({
     <button
       type="button"
       onClick={onClick}
-      aria-pressed={isPressed}
+      aria-pressed={isPanelOpen ?? isPressed}
       aria-label={ariaLabel}
-      className="group flex flex-col items-center gap-1.5 text-xs font-medium tabular-nums text-muted-foreground outline-none"
+      className={cn(
+        "group flex flex-col items-center gap-1.5 text-xs font-medium tabular-nums text-muted-foreground outline-none",
+        isPanelOpen && "text-foreground",
+      )}
     >
       <span
         className={cn(
           SIDE_CIRCLE,
-          "group-hover:bg-accent group-focus-visible:ring-[3px] group-focus-visible:ring-ring/50",
-          isPressed && "bg-accent",
+          "group-focus-visible:ring-[3px] group-focus-visible:ring-ring/50",
+          isPanelOpen
+            ? "border-transparent bg-primary text-primary-foreground group-hover:bg-primary/90"
+            : "group-hover:bg-accent",
+          isPressed && !isPanelOpen && "bg-accent",
         )}
       >
         {children}
