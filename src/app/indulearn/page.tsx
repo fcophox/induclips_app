@@ -169,11 +169,11 @@ export default function LoginPage() {
         </div>
       </main>
 
-      <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-primary p-12 text-primary-foreground lg:flex">
-        <div className="absolute -right-24 -top-24 size-96 rounded-full bg-primary-foreground/10 blur-3xl" aria-hidden />
-        <div className="absolute -bottom-32 -left-16 size-[28rem] rounded-full bg-primary-foreground/5 blur-3xl" aria-hidden />
+      <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-muted p-12 text-foreground dark:bg-black lg:flex">
+        <div className="absolute -right-24 -top-24 size-96 rounded-full bg-foreground/5 blur-3xl" aria-hidden />
+        <div className="absolute -bottom-32 -left-16 size-[28rem] rounded-full bg-foreground/[0.03] blur-3xl" aria-hidden />
 
-        <p className="relative text-sm font-medium text-primary-foreground/80">Plataforma de microlearning multimarca</p>
+        <p className="relative text-sm font-medium text-foreground/80">Plataforma de microlearning multimarca</p>
 
         <div className="relative max-w-md">
           <p className="text-3xl font-semibold leading-tight tracking-tight">
@@ -181,8 +181,8 @@ export default function LoginPage() {
           </p>
           <ul className="mt-8 flex flex-col gap-4">
             {HIGHLIGHTS.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-start gap-3 text-sm text-primary-foreground/90">
-                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary-foreground/15">
+              <li key={text} className="flex items-start gap-3 text-sm text-foreground/90">
+                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-foreground/10">
                   <Icon className="size-4" aria-hidden />
                 </span>
                 <span className="pt-1.5">{text}</span>
@@ -191,7 +191,7 @@ export default function LoginPage() {
           </ul>
         </div>
 
-        <p className="relative text-xs text-primary-foreground/70">Inducampus online · Red comercial Indumotora</p>
+        <p className="relative text-xs text-foreground/70">Inducampus online · Red comercial Indumotora</p>
       </aside>
     </div>
   );
